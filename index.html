@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Literaism — Sastra, Musik, Film, dan Budaya Pop buat Gen Z</title>
 <meta name="description" content="Literaism: platform sastra x budaya pop buat Gen Z. Bahas buku, film, musik, sampai fenomena internet dengan cara yang gampang dicerna.">
+<link rel="canonical" href="https://literaism.my.id/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Literaism">
+<meta property="og:title" content="Literaism — Sastra, Musik, Film, dan Budaya Pop buat Gen Z">
+<meta property="og:description" content="Platform sastra x budaya pop buat Gen Z. Buku, film, musik, dan fenomena internet, dibahas jujur tanpa gaya menggurui.">
+<meta property="og:url" content="https://literaism.my.id/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Literaism — Sastra, Musik, Film, dan Budaya Pop buat Gen Z">
+<meta name="twitter:description" content="Platform sastra x budaya pop buat Gen Z. Buku, film, musik, dan fenomena internet, dibahas jujur tanpa gaya menggurui.">
+<meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -185,7 +195,12 @@
   /* ARTICLES / CARDS */
   .articles{padding:70px 0;}
   .article-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
-  .card{background:var(--paper); color:var(--ink-deep); display:flex; flex-direction:column; cursor:pointer;}
+  .card{
+    background:var(--paper); color:var(--ink-deep); display:flex; flex-direction:column; cursor:pointer;
+    border-radius:16px; overflow:hidden; box-shadow:0 14px 30px -14px rgba(0,0,0,0.5);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{transform:translateY(-4px); box-shadow:0 20px 38px -14px rgba(0,0,0,0.6);}
   .card-thumb{position:relative; aspect-ratio:16/10; background:var(--paper-dim); overflow:hidden;}
   .card-thumb img{width:100%; height:100%; object-fit:cover;}
   .card-body{padding:20px 20px 24px; display:flex; flex-direction:column; flex:1;}
@@ -226,7 +241,9 @@
   .citation-box{margin-bottom:32px; padding:18px; border:1px dashed rgba(246,241,228,0.3); font-family:var(--mono); font-size:0.8rem; color:var(--paper); line-height:1.6;}
   .citation-box p{margin-bottom:12px; word-break:break-word;}
   .reader-hero{width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:32px;}
-  .reader-text{font-size:1.05rem; color:#d7d3c4; line-height:1.8; max-width:70ch;}
+  .reader-text{font-size:1.05rem; color:#d7d3c4; line-height:1.8; max-width:70ch; text-align:justify;}
+  #view-article .wrap{max-width:720px;}
+  #view-article .reader-text{max-width:none;}
   .reader-text p{margin-bottom:20px;}
   .reader-text p:first-of-type::first-letter{
     font-family:var(--serif); font-weight:800; font-size:3.4rem; float:left; line-height:0.8; padding:6px 8px 0 0; color:var(--accent);
@@ -670,7 +687,7 @@
         <div class="editor-row">
           <div class="editor-field">
             <label for="editor-author-photo-upload">Foto Profil Penulis</label>
-            <input type="file" id="editor-author-photo-upload" accept="image/*" onchange="handlePhotoUpload(this,'editor-author-photo','editor-author-photo-preview',320,0.75)">
+            <input type="file" id="editor-author-photo-upload" accept="image/*" onchange="handlePhotoUpload(this,'editor-author-photo','editor-author-photo-preview',420,0.85)">
             <img id="editor-author-photo-preview" class="editor-preview" style="display:none;" alt="Preview foto profil">
             <input type="hidden" id="editor-author-photo">
             <p class="editor-hint" id="author-photo-note">Isi Nama Penulis dulu di atas buat tau ini wajib atau opsional.</p>
@@ -684,7 +701,7 @@
 
         <div class="editor-field">
           <label for="editor-cover-upload">Foto Cover Tulisan</label>
-          <input type="file" id="editor-cover-upload" accept="image/*" required onchange="handlePhotoUpload(this,'editor-cover','editor-cover-preview',900,0.7)">
+          <input type="file" id="editor-cover-upload" accept="image/*" required onchange="handlePhotoUpload(this,'editor-cover','editor-cover-preview',1200,0.85)">
           <img id="editor-cover-preview" class="editor-preview" style="display:none;" alt="Preview foto cover">
           <input type="hidden" id="editor-cover">
         </div>
@@ -783,240 +800,12 @@
     { key:"musik", name:"Musik", desc:"Ulasan band-band, genre, lagu, lirik-lirik, dan lainnya." }
   ];
 
-   const AUTHORS = {
-    "Nadia Ayu": {
-      photo:"https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=200&auto=format&fit=crop",
-      bio:"Seorang mahasiswa Sastra Inggris yang suka menulis soal horor klasik dan sastra gotik."
-    },
-    "Raka Pradana": {
-      photo:"https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop",
-      bio:"Pencinta vinyl dan musik indie yang playlist-nya nggak pernah absen dari lagu sendu."
-    },
-    "Bimo Satrio": {
-      photo:"https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?q=80&w=200&auto=format&fit=crop",
-      bio:"Penikmat film yang suka bongkar detail kecil di balik sebuah adaptasi."
-    },
-    "Alya Ramadhani": {
-      photo:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
-      bio:"Mahasiswa Sejarah yang percaya masa lalu itu nggak pernah benar-benar lewat."
-    },
-    "Fikri Nugraha": {
-      photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-      bio:"Gamer yang lebih suka ngulik lore ketimbang buru-buru nyelesein misi utama."
-    },
-    "Clara Wijaya": {
-      photo:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
-      bio:"Pengamat isu sosial dan budaya pop yang suka bahas fenomena internet terbaru."
-    }
-  };
+  // Data penulis & tulisan dimulai kosong — semuanya sekarang diisi lewat halaman #editor
+  // dan tersimpan permanen di Google Sheet (lihat SHEET_CONFIG di bawah).
+  const AUTHORS = {};
 
-  const ARTICLES = {
-    poe: {
-      segment:"sastra", date:"2026-06-20", readTime:6,
-      title:"Kenapa Cerita Pendek Edgar Allan Poe Masih Bikin Merinding di 2026",
-      excerpt:"Dari “The Tell-Tale Heart” sampai algoritma horor TikTok, ternyata polanya mirip-mirip.",
-      authorName:"Nadia Ayu",
-      images:[
-        "https://images.unsplash.com/photo-1495640388908-05fa85288e61?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, sebelum ada jump scare di film horor, Edgar Allan Poe udah lebih dulu mainin rasa parno lewat kata-kata doang. Nggak ada efek suara, nggak ada CGI, tapi tetap bikin jantung deg-degan.",
-        "Di “The Tell-Tale Heart”, Poe pakai sudut pandang orang pertama yang makin lama makin nggak stabil. Pembaca dipaksa masuk ke kepala karakter yang yakin banget dia waras, padahal jelas-jelas enggak.",
-        "Teknik ini yang sekarang dipakai ulang di horor modern, termasuk konten horor pendek di TikTok. Bedanya cuma medium — intinya sama: bikin penonton nggak yakin apa yang mereka lihat itu nyata atau enggak.",
-        "Jadi kalau lo ngerasa horor psikologis itu tren baru, sebenernya Poe udah ngerjain itu dari abad ke-19. Cuma platform-nya aja yang beda."
-      ]
-    },
-    orwell1984: {
-      segment:"sastra", date:"2026-05-10", readTime:6,
-      title:"Novel 1984 Ditulis 1949, Kenapa Sekarang Makin Sering Dibahas Ulang?",
-      excerpt:"Kritik ke rezim otoriter ini malah lebih sering di-highlight generasi baru gara-gara isu privasi digital.",
-      authorName:"Nadia Ayu",
-      images:[
-        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1495640388908-05fa85288e61?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, istilah “Big Brother” yang sering dipakai buat ngegambarin pengawasan berlebihan itu asalnya dari novel 1984 karya George Orwell, bukan dari acara TV.",
-        "Orwell nulis novel ini sebagai kritik ke rezim otoriter, tapi sekarang banyak pembaca muda ngerasa relevansinya justru ke arah algoritma media sosial yang ngawasin kebiasaan kita.",
-        "Konsep “doublethink”, yaitu percaya dua hal yang bertentangan sekaligus, juga sering dipakai buat ngejelasin fenomena informasi simpang siur di internet sekarang.",
-        "Makanya novel yang umurnya udah lebih dari 75 tahun ini masih laris dibahas ulang tiap ada isu privasi data baru yang muncul."
-      ]
-    },
-    emo: {
-      segment:"musik", date:"2026-06-28", readTime:5,
-      title:"Midwest Emo Nggak Cuma Soal Sedih-Sedihan, Ini Sejarahnya",
-      excerpt:"Genre yang lahir dari basement show tahun 90-an ini kini jadi playlist wajib Gen Z.",
-      authorName:"Raka Pradana",
-      images:[
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1493225457124-a3eac332f0c9?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, midwest emo lahir bukan di studio besar, tapi di basement rumah orang di Illinois sama Ohio awal 90-an. Nggak ada label besar, semuanya DIY.",
-        "Ciri khasnya itu gitar yang dipetik dengan pola nggak biasa (biasa disebut noodling), lirik yang jujur banget sampe kadang kayak buka diary, dan produksi yang sengaja dibiarin mentah.",
-        "Band-band kayak American Football jadi rujukan generasi baru buat genre ini. Padahal pas rilis pertama kali, mereka nggak dapet perhatian sebesar sekarang.",
-        "Sekarang midwest emo balik populer lewat playlist Spotify dan Gen Z yang nemu genre ini lewat TikTok. Circle-nya emang berulang, cuma platform-nya yang ganti."
-      ]
-    },
-    shoegaze: {
-      segment:"musik", date:"2026-05-12", readTime:5,
-      title:"Kenapa Shoegaze Balik Populer Lewat Playlist Gen Z?",
-      excerpt:"Genre yang identik sama suara gitar bising dan vokal yang tenggelam ini balik nge-hits lewat playlist mood.",
-      authorName:"Raka Pradana",
-      images:[
-        "https://images.unsplash.com/photo-1493225457124-a3eac332f0c9?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, shoegaze itu namanya asalnya dari kebiasaan musisinya yang sering nunduk ke pedal efek gitar pas manggung, makanya disebut “menatap sepatu sendiri”.",
-        "Band-band macam My Bloody Valentine jadi rujukan utama genre ini, dengan ciri khas lapisan gitar yang tebal dan vokal yang sengaja dibikin nggak terlalu dominan.",
-        "Sekarang genre ini balik populer lewat algoritma playlist yang ngerekomendasiin lagu berdasarkan mood, bukan cuma genre atau tahun rilis doang.",
-        "Buat yang baru pertama denger, coba dengerin sambil merhatiin lapisan suaranya — shoegaze itu emang didesain buat didengerin, bukan cuma diputer di background."
-      ]
-    },
-    filmRusia: {
-      segment:"film", date:"2026-06-22", readTime:7,
-      title:"Lo Pada Tau Ga, Kalau Ending Film Ini Diambil dari Novel Rusia?",
-      excerpt:"Breakdown adaptasi yang bikin penonton baru penasaran sama buku aslinya.",
-      authorName:"Bimo Satrio",
-      images:[
-        "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, banyak twist ending film Hollywood yang sebenernya udah pernah dipakai di novel Rusia klasik ratusan tahun lalu. Cuma dikemas ulang biar terasa baru.",
-        "Konsep antihero yang moralnya abu-abu, misalnya, udah dieksplor abis-abisan sama Dostoevsky lewat karakter-karakternya yang kompleks dan kontradiktif.",
-        "Yang bikin adaptasi modern ini menarik bukan soal ceritanya baru atau enggak, tapi gimana konteks sosial sekarang bikin cerita lama itu kerasa relevan lagi.",
-        "Jadi lain kali nonton film dengan ending yang bikin lo mikir keras, coba cek — bisa jadi akarnya dari rak buku yang udah ada dari abad ke-19."
-      ]
-    },
-    endingAmbigu: {
-      segment:"film", date:"2026-05-08", readTime:5,
-      title:"Kenapa Ending Ambigu Makin Digemari Penonton Muda?",
-      excerpt:"Film-film dengan ending yang nggak dikasih jawaban pasti makin digemari, apalagi di kalangan penonton muda.",
-      authorName:"Bimo Satrio",
-      images:[
-        "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, ending ambigu sebenernya udah lama dipakai di sinema seni Eropa, tapi baru belakangan ini nge-tren lagi di kalangan penonton mainstream muda.",
-        "Salah satu alasannya karena ending terbuka ngajak penonton buat mikir dan berdiskusi, bukan cuma nonton terus lupa begitu aja.",
-        "Fenomena ini juga didukung sama budaya diskusi di media sosial, di mana teori dan interpretasi penonton soal ending film jadi konten tersendiri yang seru dibahas rame-rame.",
-        "Jadi kalau lo keluar bioskop dengan banyak pertanyaan, itu mungkin memang tujuan si sutradara — bikin lo mikir lebih lama dari durasi filmnya sendiri."
-      ]
-    },
-    sumpahPemuda: {
-      segment:"sejarah", date:"2026-06-18", readTime:5,
-      title:"Lo Pada Tau Ga, Sumpah Pemuda Itu Ternyata Bukan Naskah Sekali Jadi?",
-      excerpt:"Naskah yang kita hafal tiap 28 Oktober itu lahir dari proses yang jauh lebih berantakan dari yang diajarin di sekolah.",
-      authorName:"Alya Ramadhani",
-      images:[
-        "https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, teks Sumpah Pemuda yang biasa dibaca tiap upacara itu ejaannya udah dirapihin berkali-kali sebelum jadi versi yang kita kenal sekarang.",
-        "Kongres Pemuda II tahun 1928 sendiri berlangsung di tiga lokasi berbeda dalam dua hari, bukan satu gedung doang kayak yang sering digambarkan di buku pelajaran.",
-        "Yang menarik, ikrar itu lahir dari diskusi panjang wakil-wakil organisasi pemuda daerah yang awalnya nggak akur soal bahasa persatuan. Bahasa Melayu akhirnya dipilih karena dianggap paling netral.",
-        "Jadi kalau lo mikir persatuan itu terjadi begitu aja, sejarahnya justru penuh drama dan tarik ulur. Nggak beda jauh sama grup kerja kelompok kuliah."
-      ]
-    },
-    perangDiponegoro: {
-      segment:"sejarah", date:"2026-05-02", readTime:5,
-      title:"Perang Diponegoro Ternyata Dipicu Patok Tanah yang Dicabut?",
-      excerpt:"Perang lima tahun yang menewaskan ratusan ribu orang ini ternyata dipicu hal yang kelihatannya sepele.",
-      authorName:"Alya Ramadhani",
-      images:[
-        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, salah satu pemicu langsung Perang Diponegoro itu adalah pencabutan patok tanah di sekitar makam leluhur Pangeran Diponegoro oleh pihak Belanda tanpa izin.",
-        "Peristiwa itu jadi puncak dari akumulasi kekecewaan panjang terhadap kebijakan kolonial yang dianggap merampas hak dan kehormatan masyarakat lokal.",
-        "Perang yang berlangsung dari 1825 sampai 1830 ini jadi salah satu perlawanan terbesar terhadap kolonialisme di Nusantara, dengan korban yang sangat besar di kedua belah pihak.",
-        "Jadi konflik besar itu nggak selalu meletus dari satu alasan doang, tapi dari kombinasi ketidakadilan yang menumpuk lama sebelum akhirnya pecah."
-      ]
-    },
-    eldenRing: {
-      segment:"game", date:"2026-06-15", readTime:6,
-      title:"Elden Ring dan Mitologi Nordik yang Nyempil di Setiap Bos",
-      excerpt:"Dari nama bos sampai desain dunia, Elden Ring diam-diam banyak nyerap elemen dari mitologi Nordik.",
-      authorName:"Fikri Nugraha",
-      images:[
-        "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1580327344181-c1163234e5a0?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, desain dunia Elden Ring banyak kepengaruh sama konsep Yggdrasil, pohon dunia dalam mitologi Nordik yang menghubungkan berbagai alam.",
-        "Beberapa nama bos dan lore item juga merujuk ke figur-figur mitologi Skandinavia, meski dibungkus ulang biar terasa asing dan baru buat pemain.",
-        "George R. R. Martin yang bantu nulis lore-nya emang dikenal suka nyampur elemen sejarah dan mitologi nyata ke dunia fiksi, mirip yang dia lakuin di Game of Thrones.",
-        "Makanya buat yang suka teori dan easter egg, main Elden Ring itu kayak baca ulang mitologi lama tapi dikemas jadi dunia open world yang bisa dijelajahi sendiri."
-      ]
-    },
-    hollowKnight: {
-      segment:"game", date:"2026-05-20", readTime:6,
-      title:"Kenapa Game Indie Kayak Hollow Knight Bisa Ngalahin Game AAA?",
-      excerpt:"Dibikin tim kecil dengan budget jauh di bawah game AAA, tapi Hollow Knight tetap bisa bersaing soal kualitas.",
-      authorName:"Fikri Nugraha",
-      images:[
-        "https://images.unsplash.com/photo-1580327344181-c1163234e5a0?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, Hollow Knight dikembangkan cuma sama tim kecil asal Australia bernama Team Cherry, jauh beda sama studio game AAA yang biasanya punya ratusan orang.",
-        "Kekuatan game indie kayak gini biasanya ada di fokus desain yang lebih personal, karena tim kecil bisa lebih leluasa eksperimen tanpa tekanan investor besar.",
-        "Desain dunia yang saling terhubung (metroidvania) dan tingkat kesulitan yang fair juga bikin game ini dapet reputasi kuat dari mulut ke mulut komunitas gamer.",
-        "Jadi budget besar emang bisa bikin visual mewah, tapi nggak selalu jaminan game itu bakal lebih dikenang dibanding karya yang dibikin dengan hati sama tim kecil."
-      ]
-    },
-    quietQuitting: {
-      segment:"modern-culture", date:"2026-06-25", readTime:4,
-      title:"Quiet Quitting: Gen Z Males Kerja atau Cari Batas yang Sehat?",
-      excerpt:"Istilah yang viral ini sering disalahpahami sebagai malas kerja. Padahal maksudnya nggak sesederhana itu.",
-      authorName:"Clara Wijaya",
-      images:[
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, istilah quiet quitting itu sebenernya bukan soal berhenti kerja diam-diam. Maksudnya lebih ke berhenti kerja di luar deskripsi tanggung jawab yang dibayar.",
-        "Fenomena ini rame lagi dibahas karena banyak Gen Z yang mulai nolak budaya hustle culture yang nganggep lembur tanpa henti itu hal yang harus dibanggain.",
-        "Riset dari beberapa lembaga ketenagakerjaan nunjukin fenomena ini lebih ke soal batas yang sehat antara kerja dan hidup pribadi, bukan soal males-malesan.",
-        "Jadi sebelum buru-buru nge-judge, mungkin worth dipikirin lagi apa maksud sebenernya di balik istilah yang sering disalahartikan ini."
-      ]
-    },
-    fomoJomo: {
-      segment:"modern-culture", date:"2026-05-15", readTime:4,
-      title:"FOMO Sekarang Udah Berubah Jadi JOMO, Kenapa?",
-      excerpt:"Dari takut ketinggalan momen, sekarang malah banyak yang bangga nolak diajak nongkrong. Apa yang berubah?",
-      authorName:"Clara Wijaya",
-      images:[
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1000&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1000&auto=format&fit=crop"
-      ],
-      paragraphs:[
-        "Lo pada tau ga, JOMO atau “joy of missing out” itu lahir sebagai reaksi balik dari FOMO yang bikin banyak orang burnout gara-gara ngerasa harus selalu update.",
-        "Fenomena ini rame dibahas seiring makin banyak orang yang sadar diri butuh waktu buat “digital detox” dari notifikasi dan media sosial yang nggak ada habisnya.",
-        "Riset soal kesehatan mental juga nunjukin, ngurangin kebiasaan scrolling tanpa tujuan bisa bantu ngurangin kecemasan sosial yang muncul dari perbandingan hidup di media sosial.",
-        "Jadi kalau lo lebih milih di rumah baca buku daripada FOMO ke acara rame-rame, itu bukan berarti lo antisosial — itu JOMO, dan itu sah-sah aja."
-      ]
-    }
-  };
-  
+  const ARTICLES = {};
+
   let currentArticle = null;
   let currentArticleId = null;
   let ENGAGEMENT = {};
@@ -1212,6 +1001,7 @@
   function openLatestArticle(){
     const latest = Object.entries(ARTICLES).sort((a,b)=> new Date(b[1].date) - new Date(a[1].date))[0];
     if(latest) openArticle(latest[0]);
+    else alert("Belum ada tulisan yang diterbitkan. Publish tulisan pertama lewat halaman Editor dulu ya.");
   }
 
   function openAuthor(name){
@@ -1371,7 +1161,9 @@
       return arts[0];
     }).filter(Boolean);
     const grid = document.getElementById("home-articles-grid");
-    grid.innerHTML = latest6.map(([id,a])=>cardHTML(id,a)).join("");
+    grid.innerHTML = latest6.length
+      ? latest6.map(([id,a])=>cardHTML(id,a)).join("")
+      : `<p class="empty-note">Belum ada tulisan yang diterbitkan. Tulisan baru bakal langsung muncul di sini setelah di-publish.</p>`;
     initCarousels(grid);
   }
 
@@ -1459,13 +1251,35 @@
     });
   }
 
+  // Batas aman di bawah limit 50.000 karakter per sel Google Sheet
+  const SHEET_CELL_BUDGET = 49000;
+
+  async function compressToFit(file, startWidth, startQuality){
+    // Coba dari paling jernih dulu; baru turun bertahap kalau hasilnya
+    // masih kegedean buat muat di satu sel Google Sheet.
+    const attempts = [
+      { width: startWidth,        quality: startQuality },
+      { width: startWidth,        quality: startQuality - 0.1 },
+      { width: startWidth * 0.85, quality: startQuality - 0.1 },
+      { width: startWidth * 0.85, quality: startQuality - 0.2 },
+      { width: startWidth * 0.7,  quality: startQuality - 0.25 },
+      { width: startWidth * 0.55, quality: startQuality - 0.3 }
+    ];
+    let last = null;
+    for(const a of attempts){
+      last = await fileToCompressedDataURL(file, a.width, Math.max(0.35, a.quality));
+      if(last.length <= SHEET_CELL_BUDGET) return last;
+    }
+    return last;
+  }
+
   async function handlePhotoUpload(fileInput, hiddenId, previewId, maxWidth, quality){
     const file = fileInput.files && fileInput.files[0];
     if(!file) return;
     try{
-      const dataUrl = await fileToCompressedDataURL(file, maxWidth, quality);
-      if(dataUrl.length > 48000){
-        alert("Foto ini masih kegedean setelah dikompres (~" + Math.round(dataUrl.length/1024) + "KB). Coba pakai foto lain yang lebih simpel/kecil resolusinya.");
+      const dataUrl = await compressToFit(file, maxWidth, quality);
+      if(dataUrl.length > SHEET_CELL_BUDGET){
+        alert("Foto ini masih kegedean walau udah dikompres maksimal (~" + Math.round(dataUrl.length/1024) + "KB). Coba foto lain yang lebih sederhana warnanya, atau resolusi awal yang nggak terlalu tinggi.");
         fileInput.value = "";
         return;
       }
