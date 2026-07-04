@@ -202,6 +202,10 @@
 
   /* SEGMENT: horizontal swipeable carousel, newest at left */
   .segment-carousel{display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x proximity; padding:4px 4px 18px; scrollbar-width:none;}
+  #view-segment .eyebrow, #view-segment .view-title, #view-segment .view-desc, #view-segment .segment-swipe-hint{
+    text-align:center; margin-left:auto; margin-right:auto;
+  }
+  #view-segment .view-desc{max-width:60ch;}
   .segment-carousel::-webkit-scrollbar{display:none;}
   .segment-carousel .card{flex:0 0 260px; scroll-snap-align:start; transition:filter .2s ease;}
   @media (max-width:600px){ .segment-carousel .card{flex-basis:78vw;} }
@@ -298,6 +302,8 @@
   }
   .editor-toolbar button:hover{border-color:var(--accent); color:var(--accent);}
   .editor-hint{font-family:var(--mono); font-size:0.7rem; color:var(--muted); line-height:1.5;}
+  .editor-preview{max-width:160px; max-height:160px; object-fit:cover; margin-top:6px; border:1px solid rgba(246,241,228,0.25);}
+  .editor-field input[type="file"]{padding:10px; cursor:pointer;}
   .reader-subhead{font-family:var(--serif); font-weight:800; font-size:1.35rem; margin:32px 0 14px; color:var(--paper);}
   .reader-inline-image{margin:28px 0;}
   .reader-inline-image img{width:100%;}
@@ -484,7 +490,7 @@
       <span class="eyebrow">Rubrik</span>
       <h1 class="view-title" id="segment-title">Nama Segmen</h1>
       <p class="view-desc" id="segment-desc">Deskripsi segmen.</p>
-      <span class="section-note" style="display:block; margin-bottom:16px;">Geser ke kanan buat tulisan lama, geser ke kiri buat yang terbaru →</span>
+      <span class="section-note segment-swipe-hint" style="display:block; margin-bottom:16px;">Geser ke kanan buat tulisan lama, geser ke kiri buat yang terbaru →</span>
       <div class="segment-carousel" id="segment-grid"></div>
     </div>
   </div>
@@ -653,17 +659,36 @@
         <div class="editor-row">
           <div class="editor-field">
             <label for="editor-author">Nama Penulis</label>
-            <input type="text" id="editor-author" required placeholder="Nama kamu">
+            <input type="text" id="editor-author" required placeholder="Nama kamu" oninput="checkAuthorField()" onblur="checkAuthorField()">
           </div>
           <div class="editor-field">
             <label for="editor-segment">Segmen</label>
             <select id="editor-segment" required></select>
           </div>
         </div>
-        <div class="editor-field">
-          <label for="editor-cover">Foto Cover (URL)</label>
-          <input type="url" id="editor-cover" required placeholder="https://...">
+
+        <div class="editor-row">
+          <div class="editor-field">
+            <label for="editor-author-photo-upload">Foto Profil Penulis</label>
+            <input type="file" id="editor-author-photo-upload" accept="image/*" onchange="handlePhotoUpload(this,'editor-author-photo','editor-author-photo-preview',320,0.75)">
+            <img id="editor-author-photo-preview" class="editor-preview" style="display:none;" alt="Preview foto profil">
+            <input type="hidden" id="editor-author-photo">
+            <p class="editor-hint" id="author-photo-note">Isi Nama Penulis dulu di atas buat tau ini wajib atau opsional.</p>
+          </div>
+          <div class="editor-field">
+            <label for="editor-author-bio">Deskripsi Singkat Diri Anda</label>
+            <textarea id="editor-author-bio" placeholder="Contoh: Seorang mahasiswa Sastra Inggris yang suka menulis." style="min-height:90px;"></textarea>
+            <p class="editor-hint" id="author-bio-note">Isi Nama Penulis dulu di atas buat tau ini wajib atau opsional.</p>
+          </div>
         </div>
+
+        <div class="editor-field">
+          <label for="editor-cover-upload">Foto Cover Tulisan</label>
+          <input type="file" id="editor-cover-upload" accept="image/*" required onchange="handlePhotoUpload(this,'editor-cover','editor-cover-preview',900,0.7)">
+          <img id="editor-cover-preview" class="editor-preview" style="display:none;" alt="Preview foto cover">
+          <input type="hidden" id="editor-cover">
+        </div>
+
         <div class="editor-field">
           <label for="editor-excerpt">Ringkasan Singkat</label>
           <input type="text" id="editor-excerpt" required placeholder="1 kalimat ringkasan buat card">
@@ -1346,14 +1371,118 @@
     }).join("");
   }
 
+  /* ======================= UPLOAD & KOMPRES FOTO (jadi base64, tanpa perlu link/hosting eksternal) ======================= */
+  function fileToCompressedDataURL(file, maxWidth, quality){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const scale = Math.min(1, maxWidth / img.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => reject(new Error("Gagal baca gambar"));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error("Gagal baca file"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handlePhotoUpload(fileInput, hiddenId, previewId, maxWidth, quality){
+    const file = fileInput.files && fileInput.files[0];
+    if(!file) return;
+    try{
+      const dataUrl = await fileToCompressedDataURL(file, maxWidth, quality);
+      if(dataUrl.length > 48000){
+        alert("Foto ini masih kegedean setelah dikompres (~" + Math.round(dataUrl.length/1024) + "KB). Coba pakai foto lain yang lebih simpel/kecil resolusinya.");
+        fileInput.value = "";
+        return;
+      }
+      document.getElementById(hiddenId).value = dataUrl;
+      const preview = document.getElementById(previewId);
+      preview.src = dataUrl;
+      preview.style.display = "block";
+    }catch(err){
+      console.error("Gagal proses foto:", err);
+      alert("Gagal memproses foto ini. Coba file gambar lain.");
+      fileInput.value = "";
+    }
+  }
+
+  /* ======================= CEK PENULIS BARU VS LAMA (buat wajib/opsional foto & bio) ======================= */
+  function findAuthorByName(name){
+    if(!name) return null;
+    const lower = name.toLowerCase();
+    const key = Object.keys(AUTHORS).find(k => k.toLowerCase() === lower);
+    return key ? { key: key, data: AUTHORS[key] } : null;
+  }
+
+  function checkAuthorField(){
+    const name = document.getElementById("editor-author").value.trim();
+    const existing = findAuthorByName(name);
+    const photoUpload = document.getElementById("editor-author-photo-upload");
+    const photoNote = document.getElementById("author-photo-note");
+    const bioField = document.getElementById("editor-author-bio");
+    const bioNote = document.getElementById("author-bio-note");
+
+    if(!name){
+      photoNote.textContent = "Isi Nama Penulis dulu di atas buat tau ini wajib atau opsional.";
+      bioNote.textContent = "Isi Nama Penulis dulu di atas buat tau ini wajib atau opsional.";
+      photoUpload.removeAttribute("required");
+      bioField.removeAttribute("required");
+    } else if(existing){
+      photoUpload.removeAttribute("required");
+      bioField.removeAttribute("required");
+      photoNote.textContent = "\"" + existing.key + "\" udah pernah publish — upload foto cuma kalau mau ganti foto profil lama.";
+      bioNote.textContent = "Opsional — isi cuma kalau mau update deskripsi lama.";
+    } else {
+      photoUpload.setAttribute("required","required");
+      bioField.setAttribute("required","required");
+      photoNote.textContent = "\"" + name + "\" penulis baru — wajib upload foto profil.";
+      bioNote.textContent = "Wajib diisi karena ini penulis baru, belum pernah publish.";
+    }
+  }
+
+  function resetEditorForm(){
+    document.getElementById("editor-form").reset();
+    document.getElementById("editor-cover").value = "";
+    document.getElementById("editor-author-photo").value = "";
+    ["editor-cover-preview","editor-author-photo-preview"].forEach(id=>{
+      const el = document.getElementById(id);
+      el.src = "";
+      el.style.display = "none";
+    });
+    checkAuthorField();
+  }
+
   function publishArticle(){
     const title = document.getElementById("editor-title").value.trim();
-    const authorName = document.getElementById("editor-author").value.trim();
+    const authorNameRaw = document.getElementById("editor-author").value.trim();
     const segment = document.getElementById("editor-segment").value;
-    const cover = document.getElementById("editor-cover").value.trim();
+    const cover = document.getElementById("editor-cover").value;
     const excerpt = document.getElementById("editor-excerpt").value.trim();
     const bodyRaw = document.getElementById("editor-body").value.trim();
-    if(!title || !authorName || !segment || !cover || !excerpt || !bodyRaw) return;
+    const authorPhoto = document.getElementById("editor-author-photo").value;
+    const authorBio = document.getElementById("editor-author-bio").value.trim();
+
+    if(!title || !authorNameRaw || !segment || !cover || !excerpt || !bodyRaw){
+      alert("Lengkapi dulu semua kolom wajib (termasuk upload foto cover) ya.");
+      return;
+    }
+
+    const existing = findAuthorByName(authorNameRaw);
+    const canonicalName = existing ? existing.key : authorNameRaw;
+
+    if(!existing && (!authorPhoto || !authorBio)){
+      alert("Karena \"" + authorNameRaw + "\" penulis baru (belum pernah publish), wajib upload foto profil & isi deskripsi singkat diri dulu.");
+      return;
+    }
 
     const paragraphs = bodyRaw.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
     const wordCount = bodyRaw.split(/\s+/).filter(Boolean).length;
@@ -1361,19 +1490,22 @@
     const id = "post" + Date.now();
     const today = new Date().toISOString().slice(0,10);
 
-    if(!AUTHORS[authorName]){
-      AUTHORS[authorName] = { photo: cover, bio: "Kontributor Literaism." };
+    if(!existing){
+      AUTHORS[canonicalName] = { photo: authorPhoto, bio: authorBio };
+    } else {
+      if(authorPhoto) AUTHORS[canonicalName].photo = authorPhoto;
+      if(authorBio) AUTHORS[canonicalName].bio = authorBio;
     }
 
     ARTICLES[id] = {
       segment: segment, date: today, readTime: readTime,
-      title: title, excerpt: excerpt, authorName: authorName,
+      title: title, excerpt: excerpt, authorName: canonicalName,
       images: [cover],
       paragraphs: paragraphs
     };
 
     renderHomeArticles();
-    document.getElementById("editor-form").reset();
+    resetEditorForm();
     openArticle(id);
 
     fetch(SHEET_CONFIG.url, {
@@ -1384,9 +1516,9 @@
         readTime: readTime,
         title: title,
         excerpt: excerpt,
-        authorName: authorName,
-        authorPhoto: AUTHORS[authorName].photo,
-        authorBio: AUTHORS[authorName].bio,
+        authorName: canonicalName,
+        authorPhoto: AUTHORS[canonicalName].photo,
+        authorBio: AUTHORS[canonicalName].bio,
         cover: cover,
         paragraphs: paragraphs.join("|||")
       })
