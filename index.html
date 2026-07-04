@@ -356,7 +356,7 @@
 <header>
   <nav class="wrap">
     <a href="#" class="logo" onclick="event.preventDefault(); showHome();">
-      <img class="logo-mark" src="asset/logo.png" alt="Logo Literaism" width="34" height="38">
+      <img class="logo-mark" src="assets/logo.png" alt="Logo Literaism" width="34" height="38">
       <span class="logo-text">Litera<span class="logo-accent">ism</span></span>
     </a>
     <div class="nav-center" id="nav-center"></div>
@@ -665,8 +665,8 @@
       </form>
 
       <div class="submit-note">
-        <p><strong>Cara aktifin publish beneran (Google Sheet):</strong> ikuti panduan yang dikasih di chat buat bikin Google Sheet + Apps Script, terus tempel URL Web App-nya di <code>SHEET_CONFIG.url</code> pada kode situs.</p>
-        <p>Kalau belum diisi, tulisan yang di-publish di sini cuma keliatan di browser & sesi kamu sendiri, dan hilang lagi kalau halaman di-refresh.</p>
+        <p><strong>Cara aktifin publish beneran:</strong> isi URL Web App Apps Script kamu di file <code>api/articles.js</code> (bagian <code>APPS_SCRIPT_URL</code>), lalu deploy ulang ke Vercel. Situs bakal otomatis lewat proxy ini, jadi nggak kena blokir ad-blocker.</p>
+        <p>Kalau proxy-nya belum di-setup, tulisan yang di-publish di sini cuma keliatan di browser & sesi kamu sendiri, dan hilang lagi kalau halaman di-refresh.</p>
       </div>
     </div>
   </div>
@@ -982,7 +982,9 @@
   function segName(key){ const s = SEGMENTS.find(s=>s.key===key); return s ? s.name : key; }
   function metaString(a){ return segName(a.segment) + " · " + a.readTime + " menit baca"; }
   function formatDate(dateStr){
-    const d = new Date(dateStr + "T00:00:00");
+    const clean = String(dateStr).includes("T") ? String(dateStr) : dateStr + "T00:00:00";
+    const d = new Date(clean);
+    if(isNaN(d.getTime())) return "";
     const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
     return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
   }
@@ -1275,62 +1277,98 @@
     };
 
     renderHomeArticles();
-
-    if(SHEET_CONFIG.url && !SHEET_CONFIG.url.startsWith("GANTI")){
-      fetch(SHEET_CONFIG.url, {
-        method:"POST",
-        mode:"no-cors",
-        headers:{"Content-Type":"text/plain"},
-        body: JSON.stringify({
-          segment: segment,
-          readTime: readTime,
-          title: title,
-          excerpt: excerpt,
-          authorName: authorName,
-          authorPhoto: AUTHORS[authorName].photo,
-          authorBio: AUTHORS[authorName].bio,
-          cover: cover,
-          paragraphs: paragraphs.join("|||")
-        })
-      }).catch(err=>console.error("Gagal simpan ke Google Sheet:", err));
-    }
-
     document.getElementById("editor-form").reset();
-    alert(SHEET_CONFIG.url && !SHEET_CONFIG.url.startsWith("GANTI")
-      ? "Tulisan berhasil di-publish dan disimpan ke Google Sheet! Muncul juga buat pengunjung lain (mungkin butuh refresh)."
-      : "Tulisan berhasil di-publish! (Google Sheet belum disambungin, jadi ini cuma keliatan di browser kamu sendiri — lihat catatan di halaman ini.)");
     openArticle(id);
+
+    fetch(SHEET_CONFIG.url, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        segment: segment,
+        readTime: readTime,
+        title: title,
+        excerpt: excerpt,
+        authorName: authorName,
+        authorPhoto: AUTHORS[authorName].photo,
+        authorBio: AUTHORS[authorName].bio,
+        cover: cover,
+        paragraphs: paragraphs.join("|||")
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if(data && data.success){
+        console.log("Tersimpan permanen ke Google Sheet dengan id:", data.id);
+      } else {
+        console.warn("Publish lokal berhasil, tapi respons Sheet nggak sesuai dugaan:", data);
+        alert("Tulisan tampil di browser kamu, tapi ada masalah pas nyimpen ke Google Sheet (cek Console buat detail). Coba cek setup /api/articles.js.");
+      }
+    })
+    .catch(err => {
+      console.error("Gagal simpan permanen ke Google Sheet:", err);
+      alert("Tulisan tampil di browser kamu, tapi GAGAL disimpan permanen ke Google Sheet — kemungkinan /api/articles.js belum di-setup atau URL Apps Script-nya belum diisi di sana.");
+    });
   }
 
-  /* ======================= GOOGLE SHEET BACKEND (opsional, buat publish beneran) ======================= */
+  /* ======================= GOOGLE SHEET BACKEND (lewat proxy /api/articles, lihat api/articles.js) ======================= */
   const SHEET_CONFIG = {
-    url: "https://script.google.com/macros/s/AKfycbw1Zx6DTTkpmyE9dUfhiydzteZIBinW-DkMq_7WIdQ8ODCubCf4-pvzFW3lP0oWkedy0Q/exec"
+    url: "/api/articles"
   };
 
   async function loadRemoteArticles(){
-    if(!SHEET_CONFIG.url || SHEET_CONFIG.url.startsWith("GANTI")) return;
     try{
       const res = await fetch(SHEET_CONFIG.url);
-      const rows = await res.json();
-      rows.forEach(row=>{
-        if(!row.id || !row.title) return;
-        if(!AUTHORS[row.authorName]){
-          AUTHORS[row.authorName] = {
-            photo: row.authorPhoto || row.cover,
-            bio: row.authorBio || "Kontributor Literaism."
+      if(!res.ok){
+        console.warn("/api/articles merespons status:", res.status);
+        return;
+      }
+      const rawRows = await res.json();
+      if(!Array.isArray(rawRows)){
+        console.warn("/api/articles nggak balikin array, isinya:", rawRows);
+        return;
+      }
+      console.log("Data mentah dari Sheet (" + rawRows.length + " baris):", rawRows);
+
+      let merged = 0;
+      rawRows.forEach(raw=>{
+        // Normalisasi: nama kolom di header Sheet dicocokkan tanpa peduli besar/kecil huruf & spasi
+        const row = {};
+        Object.keys(raw).forEach(k => { row[k.trim().toLowerCase()] = raw[k]; });
+
+        const id = row.id;
+        const title = row.title;
+        if(!id || !title){
+          console.warn("Baris dilewati karena kolom id/title kosong. Cek nama header di Sheet-nya. Baris:", raw);
+          return;
+        }
+
+        let dateVal = row.date;
+        if(dateVal instanceof Date) dateVal = dateVal.toISOString().slice(0,10);
+        if(typeof dateVal === "string" && dateVal.includes("T")) dateVal = dateVal.slice(0,10);
+        if(!dateVal) dateVal = new Date().toISOString().slice(0,10);
+
+        const authorName = row.authorname || "Kontributor";
+        if(!AUTHORS[authorName]){
+          AUTHORS[authorName] = {
+            photo: row.authorphoto || row.cover || "",
+            bio: row.authorbio || "Kontributor Literaism."
           };
         }
-        ARTICLES[row.id] = {
-          segment: row.segment,
-          date: row.date,
-          readTime: Number(row.readTime) || 4,
-          title: row.title,
-          excerpt: row.excerpt,
-          authorName: row.authorName,
-          images: [row.cover],
-          paragraphs: String(row.paragraphs).split("|||").map(p=>p.trim()).filter(Boolean)
+
+        ARTICLES[id] = {
+          segment: row.segment || "modern-culture",
+          date: dateVal,
+          readTime: Number(row.readtime) || 4,
+          title: title,
+          excerpt: row.excerpt || "",
+          authorName: authorName,
+          images: [row.cover || ""],
+          paragraphs: String(row.paragraphs || "").split("|||").map(p=>p.trim()).filter(Boolean)
         };
+        merged++;
       });
+
+      console.log("Berhasil gabung " + merged + " dari " + rawRows.length + " baris ke ARTICLES.");
       renderHomeArticles();
     }catch(err){
       console.error("Gagal ambil tulisan dari Google Sheet:", err);
