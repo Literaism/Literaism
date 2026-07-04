@@ -291,6 +291,17 @@
     font-family:var(--sans); font-size:0.92rem; padding:12px;
   }
   .editor-field textarea{min-height:220px; resize:vertical; line-height:1.6;}
+  .editor-toolbar{display:flex; gap:8px; flex-wrap:wrap;}
+  .editor-toolbar button{
+    background:var(--ink); border:1px solid rgba(246,241,228,0.25); color:var(--paper);
+    font-family:var(--sans); font-size:0.82rem; padding:8px 14px; cursor:pointer; transition:.2s ease;
+  }
+  .editor-toolbar button:hover{border-color:var(--accent); color:var(--accent);}
+  .editor-hint{font-family:var(--mono); font-size:0.7rem; color:var(--muted); line-height:1.5;}
+  .reader-subhead{font-family:var(--serif); font-weight:800; font-size:1.35rem; margin:32px 0 14px; color:var(--paper);}
+  .reader-inline-image{margin:28px 0;}
+  .reader-inline-image img{width:100%;}
+  .reader-inline-image figcaption{font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin-top:8px;}
   @media (max-width:600px){ .editor-row{grid-template-columns:1fr;} }
 
   /* SUBSCRIBE */
@@ -659,6 +670,13 @@
         </div>
         <div class="editor-field">
           <label for="editor-body">Isi Tulisan</label>
+          <div class="editor-toolbar">
+            <button type="button" onclick="wrapSelection('**')" title="Tebal"><strong>B</strong></button>
+            <button type="button" onclick="wrapSelection('*')" title="Miring"><em>I</em></button>
+            <button type="button" onclick="insertSubheading()" title="Sisipkan Sub Judul">Sub Judul</button>
+            <button type="button" onclick="insertImageMarkdown()" title="Sisipkan Gambar">🖼 Gambar</button>
+          </div>
+          <p class="editor-hint">Blok teks lalu klik B/I buat nebelin/miringin. Kursor taruh di baris kosong lalu klik Sub Judul atau Gambar buat nyisipin di titik itu.</p>
           <textarea id="editor-body" required placeholder="Tulis di sini. Pisahkan tiap paragraf dengan baris kosong."></textarea>
         </div>
         <button type="submit" class="btn-primary">Publish Sekarang</button>
@@ -1046,8 +1064,8 @@
   }
 
   function showHome(){ activateView("view-home"); history.replaceState(null,"",location.pathname); }
-  function showContact(){ activateView("view-contact"); }
-  function showSubmit(){ activateView("view-submit"); }
+  function showContact(){ activateView("view-contact"); location.hash = "kontak"; }
+  function showSubmit(){ activateView("view-submit"); location.hash = "kirim-tulisan"; }
 
   function openSegment(key){
     const seg = SEGMENTS.find(s=>s.key===key);
@@ -1080,7 +1098,7 @@
     document.getElementById("reader-author-meta").textContent = metaString(a) + " · " + formatDate(a.date);
     document.getElementById("reader-hero").src = a.images[0];
     document.getElementById("reader-hero").alt = a.title;
-    document.getElementById("reader-text").innerHTML = a.paragraphs.map(p=>`<p>${p}</p>`).join("");
+    document.getElementById("reader-text").innerHTML = renderBody(a.paragraphs);
 
     const url = shareUrl(id);
     document.getElementById("share-wa").href = "https://wa.me/?text=" + encodeURIComponent(a.title + " — " + url);
@@ -1119,6 +1137,7 @@
     grid.innerHTML = list.map(([id,a])=>cardHTML(id,a)).join("");
     initCarousels(grid);
     activateView("view-author");
+    location.hash = "penulis-" + encodeURIComponent(name);
   }
 
   function runSearch(){
@@ -1134,6 +1153,7 @@
       : `<p class="empty-note">Nggak nemu tulisan yang cocok. Coba kata kunci lain.</p>`;
     initCarousels(grid);
     activateView("view-search");
+    location.hash = "cari-" + encodeURIComponent(q);
   }
 
   /* ======================= SHARE & SITASI ======================= */
@@ -1199,7 +1219,7 @@
   }
 
   /* ======================= INITIAL RENDER ======================= */
-  function init(){
+  async function init(){
     document.getElementById("home-pillar-grid").innerHTML =
       SEGMENTS.map((s,i)=>pillarHTML(s, String(i+1).padStart(2,"0"))).join("");
 
@@ -1226,13 +1246,28 @@
 
     initCarousels(document);
 
+    // Tunggu data dari Google Sheet selesai digabung DULU, biar link/refresh ke
+    // artikel yang di-publish lewat editor tetap ketemu (bukan cuma artikel bawaan kode).
+    await loadRemoteArticles();
+
     const h = location.hash.replace("#","");
     if(h.startsWith("artikel-")){
       const id = h.replace("artikel-","");
-      if(ARTICLES[id]) openArticle(id);
+      if(ARTICLES[id]) openArticle(id); else showHome();
     } else if(h.startsWith("segmen-")){
       const key = h.replace("segmen-","");
-      if(SEGMENTS.find(s=>s.key===key)) openSegment(key);
+      if(SEGMENTS.find(s=>s.key===key)) openSegment(key); else showHome();
+    } else if(h.startsWith("penulis-")){
+      const name = decodeURIComponent(h.replace("penulis-",""));
+      if(AUTHORS[name]) openAuthor(name); else showHome();
+    } else if(h.startsWith("cari-")){
+      const q = decodeURIComponent(h.replace("cari-",""));
+      document.getElementById("search-input").value = q;
+      runSearch();
+    } else if(h === "kontak"){
+      activateView("view-contact");
+    } else if(h === "kirim-tulisan"){
+      activateView("view-submit");
     } else if(h === "editor"){
       activateView("view-editor");
     }
@@ -1248,6 +1283,67 @@
     const grid = document.getElementById("home-articles-grid");
     grid.innerHTML = latest6.map(([id,a])=>cardHTML(id,a)).join("");
     initCarousels(grid);
+  }
+
+  /* ======================= FORMAT RINGAN: Bold/Italic/Sub Judul/Gambar ======================= */
+  function getBodyTextarea(){ return document.getElementById("editor-body"); }
+
+  function wrapSelection(symbol){
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.slice(start, end) || "teks di sini";
+    ta.value = ta.value.slice(0, start) + symbol + selected + symbol + ta.value.slice(end);
+    ta.focus();
+    ta.selectionStart = start + symbol.length;
+    ta.selectionEnd = start + symbol.length + selected.length;
+  }
+
+  function insertSubheading(){
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart;
+    const before = ta.value.slice(0, start);
+    const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
+    const text = needsGap + "## Sub judul di sini\n\n";
+    ta.value = before + text + ta.value.slice(start);
+    const from = before.length + needsGap.length + 3;
+    ta.focus();
+    ta.selectionStart = from;
+    ta.selectionEnd = from + "Sub judul di sini".length;
+  }
+
+  function insertImageMarkdown(){
+    const url = prompt("Tempel URL gambar yang mau disisipkan di tengah tulisan:");
+    if(!url) return;
+    const caption = prompt("Keterangan gambar (boleh kosong):") || "";
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart;
+    const before = ta.value.slice(0, start);
+    const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
+    const text = needsGap + "![" + caption + "](" + url + ")\n\n";
+    ta.value = before + text + ta.value.slice(start);
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = (before + text).length;
+  }
+
+  function inlineMarkdown(text){
+    return text
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>");
+  }
+
+  function renderBody(paragraphs){
+    return paragraphs.map(raw=>{
+      const p = raw.trim();
+      if(p.startsWith("## ")){
+        return `<h3 class="reader-subhead">${inlineMarkdown(p.slice(3))}</h3>`;
+      }
+      const imgMatch = p.match(/^!\[(.*?)\]\((.+?)\)$/);
+      if(imgMatch){
+        const caption = imgMatch[1] ? `<figcaption>${imgMatch[1]}</figcaption>` : "";
+        return `<figure class="reader-inline-image"><img src="${imgMatch[2]}" alt="${imgMatch[1]}" loading="lazy">${caption}</figure>`;
+      }
+      return `<p>${inlineMarkdown(p)}</p>`;
+    }).join("");
   }
 
   function publishArticle(){
@@ -1374,7 +1470,6 @@
       console.error("Gagal ambil tulisan dari Google Sheet:", err);
     }
   }
-  loadRemoteArticles();
 
   /* ======================= YOUTUBE LATEST VIDEO ======================= */
   const YT_CONFIG = {
