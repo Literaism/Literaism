@@ -1021,6 +1021,71 @@
   let currentArticleId = null;
   let ENGAGEMENT = {};
 
+  /* ======================= GOOGLE SHEET BACKEND (lewat proxy /api/articles, lihat api/articles.js) ======================= */
+  const SHEET_CONFIG = {
+    url: "/api/articles"
+  };
+
+  async function loadRemoteArticles(){
+    try{
+      const res = await fetch(SHEET_CONFIG.url);
+      if(!res.ok){
+        console.warn("/api/articles merespons status:", res.status);
+        return;
+      }
+      const rawRows = await res.json();
+      if(!Array.isArray(rawRows)){
+        console.warn("/api/articles nggak balikin array, isinya:", rawRows);
+        return;
+      }
+      console.log("Data mentah dari Sheet (" + rawRows.length + " baris):", rawRows);
+
+      let merged = 0;
+      rawRows.forEach(raw=>{
+        // Normalisasi: nama kolom di header Sheet dicocokkan tanpa peduli besar/kecil huruf & spasi
+        const row = {};
+        Object.keys(raw).forEach(k => { row[k.trim().toLowerCase()] = raw[k]; });
+
+        const id = row.id;
+        const title = row.title;
+        if(!id || !title){
+          console.warn("Baris dilewati karena kolom id/title kosong. Cek nama header di Sheet-nya. Baris:", raw);
+          return;
+        }
+
+        let dateVal = row.date;
+        if(dateVal instanceof Date) dateVal = dateVal.toISOString().slice(0,10);
+        if(typeof dateVal === "string" && dateVal.includes("T")) dateVal = dateVal.slice(0,10);
+        if(!dateVal) dateVal = new Date().toISOString().slice(0,10);
+
+        const authorName = row.authorname || "Kontributor";
+        if(!AUTHORS[authorName]){
+          AUTHORS[authorName] = {
+            photo: row.authorphoto || row.cover || "",
+            bio: row.authorbio || "Kontributor Literaism."
+          };
+        }
+
+        ARTICLES[id] = {
+          segment: row.segment || "modern-culture",
+          date: dateVal,
+          readTime: Number(row.readtime) || 4,
+          title: title,
+          excerpt: row.excerpt || "",
+          authorName: authorName,
+          images: [row.cover || ""],
+          paragraphs: String(row.paragraphs || "").split("|||").map(p=>p.trim()).filter(Boolean)
+        };
+        merged++;
+      });
+
+      console.log("Berhasil gabung " + merged + " dari " + rawRows.length + " baris ke ARTICLES.");
+      renderHomeArticles();
+    }catch(err){
+      console.error("Gagal ambil tulisan dari Google Sheet:", err);
+    }
+  }
+
   /* ======================= HELPERS ======================= */
   function segName(key){ const s = SEGMENTS.find(s=>s.key===key); return s ? s.name : key; }
   function metaString(a){ return segName(a.segment) + " · " + a.readTime + " menit baca"; }
@@ -1536,71 +1601,6 @@
       console.error("Gagal simpan permanen ke Google Sheet:", err);
       alert("Tulisan tampil di browser kamu, tapi GAGAL disimpan permanen ke Google Sheet — kemungkinan /api/articles.js belum di-setup atau URL Apps Script-nya belum diisi di sana.");
     });
-  }
-
-  /* ======================= GOOGLE SHEET BACKEND (lewat proxy /api/articles, lihat api/articles.js) ======================= */
-  const SHEET_CONFIG = {
-    url: "/api/articles"
-  };
-
-  async function loadRemoteArticles(){
-    try{
-      const res = await fetch(SHEET_CONFIG.url);
-      if(!res.ok){
-        console.warn("/api/articles merespons status:", res.status);
-        return;
-      }
-      const rawRows = await res.json();
-      if(!Array.isArray(rawRows)){
-        console.warn("/api/articles nggak balikin array, isinya:", rawRows);
-        return;
-      }
-      console.log("Data mentah dari Sheet (" + rawRows.length + " baris):", rawRows);
-
-      let merged = 0;
-      rawRows.forEach(raw=>{
-        // Normalisasi: nama kolom di header Sheet dicocokkan tanpa peduli besar/kecil huruf & spasi
-        const row = {};
-        Object.keys(raw).forEach(k => { row[k.trim().toLowerCase()] = raw[k]; });
-
-        const id = row.id;
-        const title = row.title;
-        if(!id || !title){
-          console.warn("Baris dilewati karena kolom id/title kosong. Cek nama header di Sheet-nya. Baris:", raw);
-          return;
-        }
-
-        let dateVal = row.date;
-        if(dateVal instanceof Date) dateVal = dateVal.toISOString().slice(0,10);
-        if(typeof dateVal === "string" && dateVal.includes("T")) dateVal = dateVal.slice(0,10);
-        if(!dateVal) dateVal = new Date().toISOString().slice(0,10);
-
-        const authorName = row.authorname || "Kontributor";
-        if(!AUTHORS[authorName]){
-          AUTHORS[authorName] = {
-            photo: row.authorphoto || row.cover || "",
-            bio: row.authorbio || "Kontributor Literaism."
-          };
-        }
-
-        ARTICLES[id] = {
-          segment: row.segment || "modern-culture",
-          date: dateVal,
-          readTime: Number(row.readtime) || 4,
-          title: title,
-          excerpt: row.excerpt || "",
-          authorName: authorName,
-          images: [row.cover || ""],
-          paragraphs: String(row.paragraphs || "").split("|||").map(p=>p.trim()).filter(Boolean)
-        };
-        merged++;
-      });
-
-      console.log("Berhasil gabung " + merged + " dari " + rawRows.length + " baris ke ARTICLES.");
-      renderHomeArticles();
-    }catch(err){
-      console.error("Gagal ambil tulisan dari Google Sheet:", err);
-    }
   }
 
   /* ======================= YOUTUBE LATEST VIDEO ======================= */
