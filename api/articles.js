@@ -1,10 +1,4 @@
-// api/articles.js
-// Proxy ke Google Apps Script — request dari browser cuma nyentuh domain situs sendiri
-// (literaism.my.id/api/articles), jadi nggak kena blokir ad-blocker & nggak ada masalah CORS.
-
-// GANTI URL di bawah ini dengan URL Web App Apps Script kamu (yang sama seperti
-// yang sebelumnya kamu taruh di SHEET_CONFIG.url pada index.html).
-const APPS_SCRIPT_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT_LO";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Zx6DTTkpmyE9dUfhiydzteZIBinW-DkMq_7WIdQ8ODCubCf4-pvzFW3lP0oWkedy0Q/exec";
 
 module.exports = async function handler(req, res) {
   try {
