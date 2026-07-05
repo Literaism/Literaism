@@ -193,7 +193,7 @@
   .video-caption a{font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent); border-bottom:1px solid var(--accent);}
 
   /* ARTICLES / CARDS */
-  .articles{padding:70px 0;}
+  .articles{padding:70px 0; border-top:1px solid rgba(246,241,228,0.12);}
   .article-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
   .card{
     background:var(--paper); color:var(--ink-deep); display:flex; flex-direction:column; cursor:pointer;
@@ -426,7 +426,7 @@
         <div>
           <span class="eyebrow">Literaism — Sastra x Budaya Pop</span>
           <h1 class="hero-title">Lo pada tau ga, kalau baca itu bisa jadi <span class="highlight">se-addictive</span> nonton drakor?</h1>
-          <p class="hero-dek">Literaism ngebahas buku, film, musik, sampai fenomena internet dengan cara yang gampang dicerna.</p>
+          <p class="hero-dek">Literaism ngebahas buku, film, musik, sampai fenomena internet dengan cara yang gampang dicerna — tanpa kesan menggurui, tetap jujur sama sumbernya.</p>
           <div class="btn-row">
             <a href="#" class="btn-primary" onclick="event.preventDefault(); openLatestArticle();">Baca Tulisan Terbaru</a>
             <a href="#subscribe" class="btn-ghost">Gabung Circle</a>
@@ -446,13 +446,13 @@
       </div>
     </section>
 
-    <section class="pillars" id="pillars">
+    <section class="articles" id="articles">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="section-title">Yang Kita Bahas</h2>
-          <span class="section-note">Klik buat lihat semua tulisan per segmen</span>
+          <h2 class="section-title">Tulisan Terbaru</h2>
+          <span class="section-note">1 tulisan terbaru dari tiap segmen · klik buat baca</span>
         </div>
-        <div class="pillar-grid" id="home-pillar-grid"></div>
+        <div class="article-grid" id="home-articles-grid"></div>
       </div>
     </section>
 
@@ -474,15 +474,16 @@
       </div>
     </section>
 
-    <section class="articles" id="articles">
+    <section class="pillars" id="pillars">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="section-title">Tulisan Terbaru</h2>
-          <span class="section-note">1 tulisan terbaru dari tiap segmen · klik buat baca</span>
+          <h2 class="section-title">Yang Kita Bahas</h2>
+          <span class="section-note">Klik buat lihat semua tulisan per segmen</span>
         </div>
-        <div class="article-grid" id="home-articles-grid"></div>
+        <div class="pillar-grid" id="home-pillar-grid"></div>
       </div>
     </section>
+
 
     <section class="subscribe" id="subscribe">
       <div class="wrap">
