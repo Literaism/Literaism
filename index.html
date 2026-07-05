@@ -322,6 +322,12 @@
   .editor-preview{max-width:160px; max-height:160px; object-fit:cover; margin-top:6px; border:1px solid rgba(246,241,228,0.25);}
   .editor-field input[type="file"]{padding:10px; cursor:pointer;}
   .reader-subhead{font-family:var(--serif); font-weight:800; font-size:1.35rem; margin:32px 0 14px; color:var(--paper);}
+  .reader-subhead-lg{font-family:var(--serif); font-weight:800; font-size:1.75rem; margin:40px 0 18px; color:var(--paper); letter-spacing:-0.01em;}
+  .reader-quote{
+    margin:32px 0; padding:4px 0 4px 24px; border-left:3px solid var(--accent);
+    font-family:var(--serif); font-style:italic; font-weight:500; font-size:1.2rem;
+    color:var(--paper); line-height:1.6;
+  }
   .reader-inline-image{margin:28px 0;}
   .reader-inline-image img{width:100%;}
   .reader-inline-image figcaption{font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin-top:8px;}
@@ -426,7 +432,7 @@
         <div>
           <span class="eyebrow">Literaism — Sastra x Budaya Pop</span>
           <h1 class="hero-title">Lo pada tau ga, kalau baca itu bisa jadi <span class="highlight">se-addictive</span> nonton drakor?</h1>
-          <p class="hero-dek">Literaism ngebahas buku, film, musik, sampai fenomena internet dengan cara yang gampang dicerna.</p>
+          <p class="hero-dek">Literaism ngebahas buku, film, musik, sampai fenomena internet dengan cara yang gampang dicerna — tanpa kesan menggurui, tetap jujur sama sumbernya.</p>
           <div class="btn-row">
             <a href="#" class="btn-primary" onclick="event.preventDefault(); openLatestArticle();">Baca Tulisan Terbaru</a>
             <a href="#subscribe" class="btn-ghost">Gabung Circle</a>
@@ -653,7 +659,7 @@
       <div class="segment-def-list" id="segment-def-list"></div>
 
       <div class="submit-note">
-        <p>Setiap tulisan minimal 600 dan maksimal 1000 kata.</p>
+        <p>Setiap tulisan minimal 100 dan maksimal 700 kata.</p>
         <p>Format berbentuk Word atau PDF dengan nama file: <strong>Nama - Judul Tulisan - Segmen</strong>, dikirimkan ke email <strong>literaism@gmail.com</strong>.</p>
       </div>
 
@@ -702,9 +708,10 @@
 
         <div class="editor-field">
           <label for="editor-cover-upload">Foto Cover Tulisan</label>
-          <input type="file" id="editor-cover-upload" accept="image/*" required onchange="handlePhotoUpload(this,'editor-cover','editor-cover-preview',1200,0.85)">
+          <input type="file" id="editor-cover-upload" accept="image/*" required onchange="handlePhotoUpload(this,'editor-cover','editor-cover-preview',1600,0.9)">
           <img id="editor-cover-preview" class="editor-preview" style="display:none;" alt="Preview foto cover">
           <input type="hidden" id="editor-cover">
+          <p class="editor-hint">Foto otomatis di-upload ke hosting gambar setelah dipilih.</p>
         </div>
 
         <div class="editor-field">
@@ -716,10 +723,14 @@
           <div class="editor-toolbar">
             <button type="button" onclick="wrapSelection('**')" title="Tebal"><strong>B</strong></button>
             <button type="button" onclick="wrapSelection('*')" title="Miring"><em>I</em></button>
-            <button type="button" onclick="insertSubheading()" title="Sisipkan Sub Judul">Sub Judul</button>
-            <button type="button" onclick="insertImageMarkdown()" title="Sisipkan Gambar">🖼 Gambar</button>
+            <button type="button" onclick="insertLink()" title="Sisipkan Link">🔗</button>
+            <button type="button" onclick="insertHeading(2)" title="Judul Besar"><strong>T</strong></button>
+            <button type="button" onclick="insertHeading(3)" title="Judul Sedang"><strong style="font-size:0.8em;">T</strong></button>
+            <button type="button" onclick="insertQuote()" title="Kutipan">&ldquo; &rdquo;</button>
+            <button type="button" onclick="triggerImageUpload()" title="Sisipkan Gambar">🖼</button>
           </div>
-          <p class="editor-hint">Blok teks lalu klik B/I buat nebelin/miringin. Kursor taruh di baris kosong lalu klik Sub Judul atau Gambar buat nyisipin di titik itu.</p>
+          <input type="file" id="editor-body-image-upload" accept="image/*" style="display:none;" onchange="handleInlineImageUpload(this)">
+          <p class="editor-hint">Blok teks lalu klik B/I/Link. Taruh kursor di baris kosong buat nyisipin Judul/Kutipan/Gambar (gambar tinggal upload dari komputer, nanti ditanya keterangannya).</p>
           <textarea id="editor-body" required placeholder="Tulis di sini. Pisahkan tiap paragraf dengan baris kosong."></textarea>
         </div>
         <button type="submit" class="btn-primary">Publish Sekarang</button>
@@ -844,9 +855,9 @@
         }
 
         let dateVal = row.date;
-        if(dateVal instanceof Date) dateVal = dateVal.toISOString().slice(0,10);
+        if(dateVal instanceof Date) dateVal = getLocalDateString(dateVal);
         if(typeof dateVal === "string" && dateVal.includes("T")) dateVal = dateVal.slice(0,10);
-        if(!dateVal) dateVal = new Date().toISOString().slice(0,10);
+        if(!dateVal) dateVal = getLocalDateString();
 
         const authorName = row.authorname || "Kontributor";
         if(!AUTHORS[authorName]){
@@ -877,8 +888,27 @@
   }
 
   /* ======================= HELPERS ======================= */
+  function shuffleArray(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   function segName(key){ const s = SEGMENTS.find(s=>s.key===key); return s ? s.name : key; }
   function metaString(a){ return segName(a.segment) + " · " + a.readTime + " menit baca"; }
+  // Penting: pakai komponen tanggal LOKAL (bukan toISOString() yang selalu UTC),
+  // biar publish tengah malam sampai jam 7 pagi WIB nggak kecatet mundur 1 hari.
+  function getLocalDateString(d){
+    d = d || new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+  }
+
   function formatDate(dateStr){
     const clean = String(dateStr).includes("T") ? String(dateStr) : dateStr + "T00:00:00";
     const d = new Date(clean);
@@ -943,9 +973,9 @@
     window.scrollTo({top:0, behavior:"instant"});
   }
 
-  function showHome(){ activateView("view-home"); history.replaceState(null,"",location.pathname); }
-  function showContact(){ activateView("view-contact"); location.hash = "kontak"; }
-  function showSubmit(){ activateView("view-submit"); location.hash = "kirim-tulisan"; }
+  function showHome(){ activateView("view-home"); setHash(""); }
+  function showContact(){ activateView("view-contact"); setHash("kontak"); }
+  function showSubmit(){ activateView("view-submit"); setHash("kirim-tulisan"); }
 
   function openSegment(key){
     const seg = SEGMENTS.find(s=>s.key===key);
@@ -960,7 +990,7 @@
       : `<p class="empty-note">Belum ada tulisan di segmen ini. Cek lagi minggu depan!</p>`;
     initCarousels(grid);
     activateView("view-segment");
-    location.hash = "segmen-" + key;
+    setHash("segmen-" + key);
   }
 
   function openArticle(id){
@@ -986,9 +1016,11 @@
     document.getElementById("citation-text").textContent = buildCitation(a, id);
     document.getElementById("citation-box").style.display = "none";
 
-    const others = Object.entries(ARTICLES).filter(([oid])=>oid!==id).slice(0,3);
+    const others = shuffleArray(Object.entries(ARTICLES).filter(([oid])=>oid!==id)).slice(0,3);
     const othersGrid = document.getElementById("other-articles-grid");
-    othersGrid.innerHTML = others.map(([oid,oa])=>cardHTML(oid,oa)).join("");
+    othersGrid.innerHTML = others.length
+      ? others.map(([oid,oa])=>cardHTML(oid,oa)).join("")
+      : `<p class="empty-note">Belum ada tulisan lain. Cek lagi nanti!</p>`;
     initCarousels(othersGrid);
 
     document.getElementById("article-segment-links").innerHTML =
@@ -996,7 +1028,7 @@
 
     renderEngagement();
     activateView("view-article");
-    location.hash = "artikel-" + id;
+    setHash("artikel-" + id);
   }
 
   function openLatestArticle(){
@@ -1018,7 +1050,7 @@
     grid.innerHTML = list.map(([id,a])=>cardHTML(id,a)).join("");
     initCarousels(grid);
     activateView("view-author");
-    location.hash = "penulis-" + encodeURIComponent(name);
+    setHash("penulis-" + encodeURIComponent(name));
   }
 
   function runSearch(){
@@ -1034,15 +1066,133 @@
       : `<p class="empty-note">Nggak nemu tulisan yang cocok. Coba kata kunci lain.</p>`;
     initCarousels(grid);
     activateView("view-search");
-    location.hash = "cari-" + encodeURIComponent(q);
+    setHash("cari-" + encodeURIComponent(q));
   }
 
   /* ======================= SHARE & SITASI ======================= */
-  function shareInstagram(){
-    navigator.clipboard.writeText(shareUrl(currentArticleId)).then(()=>{
-      alert("Link disalin! Tempel di Instagram Story kamu.");
+  async function shareInstagram(){
+    if(!currentArticle || !currentArticleId) return;
+    try{
+      const blob = await generateStoryImage(currentArticle);
+      const file = new File([blob], "literaism-story.jpg", { type: "image/jpeg" });
+
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({
+          files: [file],
+          title: currentArticle.title,
+          text: currentArticle.title + " — Literaism"
+        });
+        return;
+      }
+
+      // Browser desktop / nggak dukung Web Share: download gambarnya + salin link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "literaism-story.jpg";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      navigator.clipboard.writeText(shareUrl(currentArticleId)).catch(()=>{});
+      alert("Gambar Story udah ke-download! Buka Instagram → Story baru → upload gambar ini. Link tulisannya juga udah kesalin kalau mau ditambahin sebagai link stiker.");
+    }catch(err){
+      console.error("Gagal bikin gambar Story:", err);
+      navigator.clipboard.writeText(shareUrl(currentArticleId)).then(()=>{
+        alert("Gagal bikin gambar otomatis, tapi link tulisan udah disalin — tempel manual di Instagram Story kamu.");
+      });
+    }
+  }
+
+  function generateStoryImage(article){
+    return new Promise((resolve, reject)=>{
+      const W = 1080, H = 1920;
+      const canvas = document.createElement("canvas");
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      function drawBaseAndText(coverImg){
+        const grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0, "#14192b");
+        grad.addColorStop(1, "#0b0e19");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0,W,H);
+
+        if(coverImg){
+          const coverH = H * 0.58;
+          const scale = Math.max(W / coverImg.width, coverH / coverImg.height);
+          const drawW = coverImg.width * scale;
+          const drawH = coverImg.height * scale;
+          const dx = (W - drawW) / 2;
+          const dy = (coverH - drawH) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0,0,W,coverH);
+          ctx.clip();
+          ctx.drawImage(coverImg, dx, dy, drawW, drawH);
+          ctx.restore();
+
+          const overlay = ctx.createLinearGradient(0, coverH*0.4, 0, coverH);
+          overlay.addColorStop(0, "rgba(11,14,25,0)");
+          overlay.addColorStop(1, "rgba(11,14,25,1)");
+          ctx.fillStyle = overlay;
+          ctx.fillRect(0,0,W,coverH);
+        }
+
+        const padX = 80;
+        let y = H * 0.66;
+
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "#e8b923";
+        ctx.font = "700 34px Inter, sans-serif";
+        ctx.fillText((segName(article.segment) || "").toUpperCase(), padX, y);
+        y += 60;
+
+        ctx.fillStyle = "#f6f1e4";
+        ctx.font = "800 62px Inter, sans-serif";
+        const maxWidth = W - padX*2;
+        const words = article.title.split(" ");
+        let line = "";
+        const lines = [];
+        words.forEach(word=>{
+          const test = line ? line + " " + word : word;
+          if(ctx.measureText(test).width > maxWidth && line){
+            lines.push(line);
+            line = word;
+          } else {
+            line = test;
+          }
+        });
+        if(line) lines.push(line);
+        lines.slice(0,4).forEach(l=>{
+          ctx.fillText(l, padX, y);
+          y += 74;
+        });
+
+        y += 30;
+        ctx.font = "600 34px Inter, sans-serif";
+        ctx.fillStyle = "#8892b0";
+        ctx.fillText("oleh " + article.authorName, padX, y);
+
+        ctx.font = "italic 700 44px Inter, sans-serif";
+        ctx.fillStyle = "#f6f1e4";
+        ctx.fillText("Literaism", padX, H - 120);
+
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("toBlob gagal")), "image/jpeg", 0.92);
+      }
+
+      if(article.images && article.images[0]){
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => drawBaseAndText(img);
+        img.onerror = () => drawBaseAndText(null);
+        img.src = article.images[0];
+      } else {
+        drawBaseAndText(null);
+      }
     });
   }
+
   function buildCitation(a, id){
     const year = new Date(a.date).getFullYear();
     return a.authorName + ". (" + year + "). " + a.title + ". Literaism. " + shareUrl(id);
@@ -1131,6 +1281,30 @@
     // artikel yang di-publish lewat editor tetap ketemu (bukan cuma artikel bawaan kode).
     await loadRemoteArticles();
 
+    routeFromHash();
+
+    // Dengerin tombol Back/Forward browser: kalau hash berubah karena itu (bukan
+    // karena kita sendiri yang set lewat setHash), arahkan ulang ke halaman yang sesuai.
+    window.addEventListener("hashchange", () => {
+      if(suppressNextHashRoute){
+        suppressNextHashRoute = false;
+        return;
+      }
+      routeFromHash();
+    });
+  }
+  init();
+
+  // Dipakai tiap kali KITA sendiri yang mengubah hash (klik tulisan, segmen, dll),
+  // biar event hashchange yang ikut ke-trigger nggak dobel nge-render ulang.
+  let suppressNextHashRoute = false;
+  function setHash(newHash){
+    if(location.hash.replace("#","") === newHash) return;
+    suppressNextHashRoute = true;
+    location.hash = newHash;
+  }
+
+  function routeFromHash(){
     const h = location.hash.replace("#","");
     if(h.startsWith("artikel-")){
       const id = h.replace("artikel-","");
@@ -1151,9 +1325,10 @@
       activateView("view-submit");
     } else if(h === "editor"){
       activateView("view-editor");
+    } else {
+      activateView("view-home");
     }
   }
-  init();
 
   function renderHomeArticles(){
     const latest6 = SEGMENTS.map(seg=>{
@@ -1181,44 +1356,106 @@
     ta.selectionEnd = start + symbol.length + selected.length;
   }
 
-  function insertSubheading(){
+  function insertHeading(level){
+    const prefix = level === 2 ? "## " : "### ";
+    const placeholder = level === 2 ? "Judul besar di sini" : "Judul sedang di sini";
     const ta = getBodyTextarea();
     const start = ta.selectionStart;
     const before = ta.value.slice(0, start);
     const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
-    const text = needsGap + "## Sub judul di sini\n\n";
+    const text = needsGap + prefix + placeholder + "\n\n";
     ta.value = before + text + ta.value.slice(start);
-    const from = before.length + needsGap.length + 3;
+    const from = before.length + needsGap.length + prefix.length;
     ta.focus();
     ta.selectionStart = from;
-    ta.selectionEnd = from + "Sub judul di sini".length;
+    ta.selectionEnd = from + placeholder.length;
   }
 
-  function insertImageMarkdown(){
-    const url = prompt("Tempel URL gambar yang mau disisipkan di tengah tulisan:");
-    if(!url) return;
-    const caption = prompt("Keterangan gambar (boleh kosong):") || "";
+  function insertQuote(){
     const ta = getBodyTextarea();
-    const start = ta.selectionStart;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.slice(start, end) || "Kutipan di sini";
     const before = ta.value.slice(0, start);
     const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
-    const text = needsGap + "![" + caption + "](" + url + ")\n\n";
-    ta.value = before + text + ta.value.slice(start);
+    const text = needsGap + "> " + selected + "\n\n";
+    ta.value = before + text + ta.value.slice(end);
+    const from = before.length + needsGap.length + 2;
     ta.focus();
-    ta.selectionStart = ta.selectionEnd = (before + text).length;
+    ta.selectionStart = from;
+    ta.selectionEnd = from + selected.length;
+  }
+
+  function insertLink(){
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selected = ta.value.slice(start, end) || "teks link";
+    const url = prompt("Masukin URL link-nya:");
+    if(!url) return;
+    const replacement = "[" + selected + "](" + url + ")";
+    ta.value = ta.value.slice(0, start) + replacement + ta.value.slice(end);
+    ta.focus();
+    const from = start + replacement.length;
+    ta.selectionStart = ta.selectionEnd = from;
+  }
+
+  function triggerImageUpload(){
+    document.getElementById("editor-body-image-upload").click();
+  }
+
+  async function handleInlineImageUpload(fileInput){
+    const file = fileInput.files && fileInput.files[0];
+    if(!file) return;
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart;
+    try{
+      const localDataUrl = await fileToCompressedDataURL(file, 1200, 0.85);
+      let finalUrl = localDataUrl;
+      try{
+        const res = await fetch(UPLOAD_CONFIG.url, {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ image: localDataUrl })
+        });
+        const data = await res.json();
+        if(data && data.success && data.url) finalUrl = data.url;
+        else console.warn("Upload gambar ke ImgBB gagal, pakai versi lokal:", data);
+      }catch(e){
+        console.warn("Upload gambar body gagal, pakai versi lokal (mungkin gedean):", e);
+      }
+
+      const caption = prompt("Keterangan foto ini (boleh dikosongin):") || "";
+      const before = ta.value.slice(0, start);
+      const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
+      const insertText = needsGap + "![" + caption + "](" + finalUrl + ")\n\n";
+      ta.value = before + insertText + ta.value.slice(start);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = (before + insertText).length;
+    }catch(err){
+      console.error("Gagal proses gambar buat isi tulisan:", err);
+      alert("Gagal memproses gambar ini. Coba file lain.");
+    }finally{
+      fileInput.value = "";
+    }
   }
 
   function inlineMarkdown(text){
     return text
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>");
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   }
 
   function renderBody(paragraphs){
     return paragraphs.map(raw=>{
       const p = raw.trim();
+      if(p.startsWith("### ")){
+        return `<h3 class="reader-subhead">${inlineMarkdown(p.slice(4))}</h3>`;
+      }
       if(p.startsWith("## ")){
-        return `<h3 class="reader-subhead">${inlineMarkdown(p.slice(3))}</h3>`;
+        return `<h2 class="reader-subhead-lg">${inlineMarkdown(p.slice(3))}</h2>`;
+      }
+      if(p.startsWith("> ")){
+        return `<blockquote class="reader-quote">${inlineMarkdown(p.slice(2))}</blockquote>`;
       }
       const imgMatch = p.match(/^!\[(.*?)\]\((.+?)\)$/);
       if(imgMatch){
@@ -1274,24 +1511,66 @@
     return last;
   }
 
+  const UPLOAD_CONFIG = { url: "/api/upload-image" };
+
   async function handlePhotoUpload(fileInput, hiddenId, previewId, maxWidth, quality){
     const file = fileInput.files && fileInput.files[0];
     if(!file) return;
+    const hidden = document.getElementById(hiddenId);
+    const preview = document.getElementById(previewId);
+    const noteEl = fileInput.parentElement.querySelector(".editor-hint");
+
     try{
-      const dataUrl = await compressToFit(file, maxWidth, quality);
-      if(dataUrl.length > SHEET_CELL_BUDGET){
-        alert("Foto ini masih kegedean walau udah dikompres maksimal (~" + Math.round(dataUrl.length/1024) + "KB). Coba foto lain yang lebih sederhana warnanya, atau resolusi awal yang nggak terlalu tinggi.");
-        fileInput.value = "";
+      // Kompresi lebih longgar karena tujuan akhirnya hosting gambar, bukan sel Google Sheet
+      const localDataUrl = await fileToCompressedDataURL(file, maxWidth, quality);
+      preview.src = localDataUrl;
+      preview.style.display = "block";
+      hidden.value = "";
+      hidden.dataset.uploading = "true";
+      if(noteEl) noteEl.textContent = "Lagi upload foto, tunggu sebentar...";
+
+      const res = await fetch(UPLOAD_CONFIG.url, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ image: localDataUrl })
+      });
+      const data = await res.json();
+
+      if(data && data.success && data.url){
+        hidden.value = data.url;
+        delete hidden.dataset.uploading;
+        if(noteEl) noteEl.textContent = "Foto berhasil di-upload ✓";
         return;
       }
-      document.getElementById(hiddenId).value = dataUrl;
+
+      console.warn("Upload ke ImgBB gagal, fallback ke penyimpanan langsung (ukuran terbatas):", data);
+      await fallbackToEmbeddedPhoto(file, hiddenId, previewId, maxWidth, quality, noteEl);
+    }catch(err){
+      console.error("Gagal proses/upload foto, coba fallback:", err);
+      await fallbackToEmbeddedPhoto(file, hiddenId, previewId, maxWidth, quality, noteEl);
+    }
+  }
+
+  // Dipakai kalau /api/upload-image.js belum di-setup (IMGBB_KEY masih placeholder) —
+  // foto tetap bisa disimpan langsung di sel Google Sheet, tapi ukurannya dibatasi ketat.
+  async function fallbackToEmbeddedPhoto(file, hiddenId, previewId, maxWidth, quality, noteEl){
+    try{
+      const dataUrl = await compressToFit(file, maxWidth, quality);
+      const hidden = document.getElementById(hiddenId);
       const preview = document.getElementById(previewId);
+      if(dataUrl.length > SHEET_CELL_BUDGET){
+        if(noteEl) noteEl.textContent = "Foto kegedean & hosting ImgBB belum aktif — coba foto lain yang lebih sederhana, atau setup api/upload-image.js.";
+        alert("Foto ini kegedean dan hosting gambar (ImgBB) belum aktif, jadi kena batas ukuran Google Sheet. Coba foto lain yang lebih sederhana, atau minta aktifin ImgBB dulu.");
+        hidden.value = "";
+        return;
+      }
+      hidden.value = dataUrl;
       preview.src = dataUrl;
       preview.style.display = "block";
+      if(noteEl) noteEl.textContent = "Foto tersimpan (hosting ImgBB belum aktif, jadi ukurannya masih dibatasi).";
     }catch(err){
-      console.error("Gagal proses foto:", err);
+      console.error("Fallback foto juga gagal:", err);
       alert("Gagal memproses foto ini. Coba file gambar lain.");
-      fileInput.value = "";
     }
   }
 
@@ -1342,13 +1621,20 @@
   }
 
   function publishArticle(){
+    const coverField = document.getElementById("editor-cover");
+    const authorPhotoField = document.getElementById("editor-author-photo");
+    if(coverField.dataset.uploading === "true" || authorPhotoField.dataset.uploading === "true"){
+      alert("Tunggu proses upload foto selesai dulu sebelum publish ya.");
+      return;
+    }
+
     const title = document.getElementById("editor-title").value.trim();
     const authorNameRaw = document.getElementById("editor-author").value.trim();
     const segment = document.getElementById("editor-segment").value;
-    const cover = document.getElementById("editor-cover").value;
+    const cover = coverField.value;
     const excerpt = document.getElementById("editor-excerpt").value.trim();
     const bodyRaw = document.getElementById("editor-body").value.trim();
-    const authorPhoto = document.getElementById("editor-author-photo").value;
+    const authorPhoto = authorPhotoField.value;
     const authorBio = document.getElementById("editor-author-bio").value.trim();
 
     if(!title || !authorNameRaw || !segment || !cover || !excerpt || !bodyRaw){
@@ -1368,7 +1654,7 @@
     const wordCount = bodyRaw.split(/\s+/).filter(Boolean).length;
     const readTime = Math.max(1, Math.round(wordCount / 200));
     const id = "post" + Date.now();
-    const today = new Date().toISOString().slice(0,10);
+    const today = getLocalDateString();
 
     if(!existing){
       AUTHORS[canonicalName] = { photo: authorPhoto, bio: authorBio };
@@ -1392,6 +1678,7 @@
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
+        date: today,
         segment: segment,
         readTime: readTime,
         title: title,
