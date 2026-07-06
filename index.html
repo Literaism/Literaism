@@ -730,7 +730,7 @@
             <button type="button" onclick="triggerImageUpload()" title="Sisipkan Gambar">🖼</button>
           </div>
           <input type="file" id="editor-body-image-upload" accept="image/*" style="display:none;" onchange="handleInlineImageUpload(this)">
-          <p class="editor-hint">Blok teks lalu klik B/I/Link. Taruh kursor di baris kosong buat nyisipin Judul/Kutipan/Gambar (gambar tinggal upload dari komputer, nanti ditanya keterangannya).</p>
+          <p class="editor-hint">Blok teks lalu klik B/I/Link. Taruh kursor di baris kosong buat nyisipin Judul/Kutipan/Gambar (upload dari komputer, nanti muncul cuma nama filenya di teks — link aslinya disimpan otomatis di belakang layar).</p>
           <textarea id="editor-body" required placeholder="Tulis di sini. Pisahkan tiap paragraf dengan baris kosong."></textarea>
         </div>
         <button type="submit" class="btn-primary">Publish Sekarang</button>
@@ -820,6 +820,23 @@
 
   let currentArticle = null;
   let currentArticleId = null;
+
+  // Simpan link/data foto asli (bisa panjang banget) di sini, dikunci pakai nama file
+  // pendek yang muncul di kolom "Isi Tulisan" biar teksnya tetap rapi buat diedit.
+  let inlineImageMap = {};
+
+  function makeImageToken(filename){
+    let base = (filename || "foto.jpg").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "");
+    if(!base) base = "foto.jpg";
+    let token = base;
+    let n = 2;
+    while(Object.prototype.hasOwnProperty.call(inlineImageMap, token)){
+      const dot = base.lastIndexOf(".");
+      token = dot > -1 ? base.slice(0, dot) + "-" + n + base.slice(dot) : base + "-" + n;
+      n++;
+    }
+    return token;
+  }
   let ENGAGEMENT = {};
 
   /* ======================= GOOGLE SHEET BACKEND (lewat proxy /api/articles, lihat api/articles.js) ======================= */
@@ -1424,9 +1441,12 @@
       }
 
       const caption = prompt("Keterangan foto ini (boleh dikosongin):") || "";
+      const token = makeImageToken(file.name);
+      inlineImageMap[token] = finalUrl;
+
       const before = ta.value.slice(0, start);
       const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
-      const insertText = needsGap + "![" + caption + "](" + finalUrl + ")\n\n";
+      const insertText = needsGap + "![" + caption + "](" + token + ")\n\n";
       ta.value = before + insertText + ta.value.slice(start);
       ta.focus();
       ta.selectionStart = ta.selectionEnd = (before + insertText).length;
@@ -1617,6 +1637,7 @@
       el.src = "";
       el.style.display = "none";
     });
+    inlineImageMap = {};
     checkAuthorField();
   }
 
@@ -1633,7 +1654,7 @@
     const segment = document.getElementById("editor-segment").value;
     const cover = coverField.value;
     const excerpt = document.getElementById("editor-excerpt").value.trim();
-    const bodyRaw = document.getElementById("editor-body").value.trim();
+    let bodyRaw = document.getElementById("editor-body").value.trim();
     const authorPhoto = authorPhotoField.value;
     const authorBio = document.getElementById("editor-author-bio").value.trim();
 
@@ -1641,6 +1662,11 @@
       alert("Lengkapi dulu semua kolom wajib (termasuk upload foto cover) ya.");
       return;
     }
+
+    // Ganti balik nama file pendek di teks jadi URL/data foto asli sebelum disimpan
+    Object.keys(inlineImageMap).forEach(token=>{
+      bodyRaw = bodyRaw.split("](" + token + ")").join("](" + inlineImageMap[token] + ")");
+    });
 
     const existing = findAuthorByName(authorNameRaw);
     const canonicalName = existing ? existing.key : authorNameRaw;
