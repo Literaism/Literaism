@@ -8,7 +8,7 @@
 // 3. Ganti IMGBB_KEY di bawah ini dengan API key kamu
 // 4. Deploy ulang ke Vercel
 
-const IMGBB_KEY = "GANTI_DENGAN_API_KEY_IMGBB_LO";
+const IMGBB_KEY = "24fdeef4a2acac7c7616e38ebaf2fafa";
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
