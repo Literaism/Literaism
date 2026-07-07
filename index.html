@@ -1004,7 +1004,7 @@
     const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
     return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
   }
-  function shareUrl(id){ return location.origin + location.pathname + "#artikel-" + id; }
+  function shareUrl(id){ return location.origin + "/artikel/" + id; }
 
   function cardHTML(id, a){
     const author = AUTHORS[a.authorName] || {photo:""};
@@ -1013,7 +1013,7 @@
       <div class="card-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
       <div class="card-body">
         <span class="card-tag">${segName(a.segment)}</span>
-        <h3 class="card-title"><a href="#" onclick="event.preventDefault()">${a.title}</a></h3>
+        <h3 class="card-title"><a href="/artikel/${id}" onclick="event.preventDefault(); event.stopPropagation(); openArticle('${id}');">${a.title}</a></h3>
         <p class="card-excerpt">${a.excerpt}</p>
         <div class="card-author">
           <img src="${author.photo}" alt="Foto ${a.authorName}">
@@ -1438,7 +1438,7 @@
     <article class="reading-item" onclick="openArticle('${id}')">
       <div class="reading-item-main">
         <div class="reading-item-meta">${segName(a.segment)} <span>· ${formatDate(a.date)}</span></div>
-        <h3 class="reading-item-title">${a.title}</h3>
+        <h3 class="reading-item-title"><a href="/artikel/${id}" onclick="event.preventDefault(); event.stopPropagation(); openArticle('${id}');" style="color:inherit;">${a.title}</a></h3>
         <p class="reading-item-excerpt">${a.excerpt}</p>
       </div>
       <div class="reading-item-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
