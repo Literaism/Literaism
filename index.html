@@ -197,6 +197,30 @@
 
   /* ARTICLES / CARDS */
   .articles{padding:70px 0; border-top:1px solid rgba(28,22,16,0.12);}
+
+  /* BACAAN LAINNYA: compact list style */
+  .more-reading{padding:0 0 70px;}
+  .reading-list{display:flex; flex-direction:column;}
+  .reading-item{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:24px;
+    padding:26px 0; border-bottom:1px solid rgba(28,22,16,0.12); cursor:pointer;
+  }
+  .reading-item:first-child{padding-top:0;}
+  .reading-item-main{flex:1; min-width:0;}
+  .reading-item-meta{font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-ink); margin-bottom:8px;}
+  .reading-item-meta span{color:var(--muted); text-transform:none; letter-spacing:0;}
+  .reading-item-title{font-family:var(--serif); font-weight:800; font-size:1.15rem; line-height:1.3; margin-bottom:8px; transition:.2s ease;}
+  .reading-item:hover .reading-item-title{color:var(--accent-ink);}
+  .reading-item-excerpt{font-size:0.9rem; color:var(--muted); line-height:1.5;}
+  .reading-item-thumb{
+    width:110px; height:82px; flex-shrink:0; border-radius:8px; overflow:hidden;
+    background:var(--paper-dim);
+  }
+  .reading-item-thumb img{width:100%; height:100%; object-fit:cover;}
+  @media (max-width:600px){
+    .reading-item-thumb{width:76px; height:60px;}
+    .reading-item-title{font-size:1rem;}
+  }
   .article-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
   .card{
     background:var(--surface); color:var(--ink-deep); display:flex; flex-direction:column; cursor:pointer;
@@ -485,6 +509,16 @@
           <span class="section-note">1 tulisan terbaru dari tiap segmen · klik buat baca</span>
         </div>
         <div class="article-grid" id="home-articles-grid"></div>
+      </div>
+    </section>
+
+    <section class="more-reading" id="more-reading">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="section-title">Bacaan Lainnya</h2>
+          <span class="section-note">Tulisan lama, siapa tau kelewat</span>
+        </div>
+        <div class="reading-list" id="reading-list"></div>
       </div>
     </section>
 
@@ -1396,6 +1430,37 @@
       ? latest6.map(([id,a])=>cardHTML(id,a)).join("")
       : `<p class="empty-note">Belum ada tulisan yang diterbitkan. Tulisan baru bakal langsung muncul di sini setelah di-publish.</p>`;
     initCarousels(grid);
+    renderMoreReading();
+  }
+
+  function readingItemHTML(id, a){
+    return `
+    <article class="reading-item" onclick="openArticle('${id}')">
+      <div class="reading-item-main">
+        <div class="reading-item-meta">${segName(a.segment)} <span>· ${formatDate(a.date)}</span></div>
+        <h3 class="reading-item-title">${a.title}</h3>
+        <p class="reading-item-excerpt">${a.excerpt}</p>
+      </div>
+      <div class="reading-item-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
+    </article>`;
+  }
+
+  function renderMoreReading(){
+    const list = document.getElementById("reading-list");
+    if(!list) return;
+
+    // Jangan tampilin tulisan yang lagi jadi featured di "Tulisan Terbaru" (1 per segmen)
+    const featuredIds = new Set(SEGMENTS.map(seg=>{
+      const arts = Object.entries(ARTICLES).filter(([id,a])=>a.segment===seg.key)
+        .sort((a,b)=> new Date(b[1].date) - new Date(a[1].date));
+      return arts[0] ? arts[0][0] : null;
+    }).filter(Boolean));
+
+    const rest = shuffleArray(Object.entries(ARTICLES).filter(([id])=>!featuredIds.has(id))).slice(0, 6);
+
+    list.innerHTML = rest.length
+      ? rest.map(([id,a])=>readingItemHTML(id,a)).join("")
+      : `<p class="empty-note">Belum ada bacaan lain. Cek lagi nanti!</p>`;
   }
 
   /* ======================= FORMAT RINGAN: Bold/Italic/Sub Judul/Gambar ======================= */
