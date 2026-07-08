@@ -10,7 +10,7 @@
 // "manggil balik" endpoint /api/articles lewat HTTP (yang nambahin loncatan,
 // bikin lambat, dan kadang timeout pas dicek Google Search Console).
 
-const APPS_SCRIPT_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT_LO";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Zx6DTTkpmyE9dUfhiydzteZIBinW-DkMq_7WIdQ8ODCubCf4-pvzFW3lP0oWkedy0Q/exec";
 
 async function fetchRawRows() {
   const res = await fetch(APPS_SCRIPT_URL);
