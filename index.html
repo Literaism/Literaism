@@ -268,7 +268,7 @@
   .empty-note{font-family:var(--mono); font-size:0.85rem; color:var(--muted); padding:30px 0;}
 
   /* SEGMENT PAGE: header + hero slider (3 terbaru) + list lama berpaginasi */
-  .segment-header{padding:56px 0 32px;}
+  .segment-header{padding:24px 0 8px;}
   #view-segment .eyebrow, #view-segment .view-title, #view-segment .view-desc{
     text-align:center; margin-left:auto; margin-right:auto;
   }
@@ -618,9 +618,9 @@
   <div class="view" id="view-segment">
     <div class="wrap segment-header">
       <button class="back-link" onclick="showHome()">← Kembali ke Beranda</button>
-      <span class="eyebrow">Rubrik</span>
-      <h1 class="view-title" id="segment-title">Nama Segmen</h1>
-      <p class="view-desc" id="segment-desc">Deskripsi segmen.</p>
+      <span class="eyebrow" style="display:none;">Rubrik</span>
+      <h1 class="view-title" id="segment-title" style="display:none;">Nama Segmen</h1>
+      <p class="view-desc" id="segment-desc" style="display:none;">Deskripsi segmen.</p>
     </div>
 
     <div class="hero-slider segment-hero-slider" id="segment-hero-slider"></div>
