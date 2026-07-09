@@ -943,6 +943,10 @@
   const ARTICLES = {};
 
   let currentArticle = null;
+  // heroSliders harus dideklarasikan di sini (SEBELUM init() jalan), karena
+  // renderHomeArticles() -> initHeroSlider() bisa kepanggil sinkron duluan
+  // sebelum baris deklarasinya sendiri sempat jalan kalau ditaruh di bawah.
+  const heroSliders = {}; // { containerId: { articles: [...], index: 0, timer: null } }
   let currentArticleId = null;
 
   // Simpan link/data foto asli (bisa panjang banget) di sini, dikunci pakai nama file
@@ -2034,8 +2038,6 @@
   loadLatestVideo();
 
   /* ======================= HERO SLIDER (generik, dipakai di beranda & tiap segmen) ======================= */
-  const heroSliders = {}; // { containerId: { articles: [...], index: 0, timer: null } }
-
   function buildHeroSlider(containerId, entries, options){
     options = options || {};
     const ctaLabel = options.ctaLabel || "Baca Artikel →";
