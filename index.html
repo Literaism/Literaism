@@ -256,6 +256,9 @@
     .editorial-grid{grid-template-columns:1fr;}
   }
   .hero-slider{position:relative; min-height:600px; overflow:hidden; background:var(--ink-deep);}
+  .hero-slider-contained{min-height:460px; border-radius:14px;}
+  .hero-slider-contained .hero-slide{border-radius:14px;}
+  @media (max-width:860px){ .hero-slider-contained{min-height:400px;} }
   .hero-slide{
     position:absolute; inset:0; opacity:0; visibility:hidden; overflow:hidden;
     transition:opacity .6s ease; background-size:cover; background-position:center;
@@ -778,7 +781,7 @@
               <h2 class="section-title-sm">Pilihan Redaksi</h2>
               <a class="see-all-link" onclick="document.getElementById('terbaru').scrollIntoView({behavior:'smooth'})">Lihat semua</a>
             </div>
-            <div class="pilihan-redaksi-grid" id="pilihan-redaksi-grid"></div>
+            <div class="hero-slider hero-slider-contained" id="hero-slider"></div>
 
             <div class="section-head-row" id="terbaru" style="margin-top:48px;">
               <h2 class="section-title-sm">Terbaru</h2>
@@ -1966,39 +1969,13 @@
     renderSidebarRecommend();
   }
 
-  function pilihanBigCardHTML(id, a){
-    return `<article class="pilihan-big-card" onclick="openArticle('${id}')" style="background-image:url('${a.images[0]}')">
-      <div class="pilihan-card-overlay">
-        <span class="pilihan-card-tag">${segName(a.segment)}</span>
-        <h3 class="pilihan-card-title">${a.title}</h3>
-        <p class="pilihan-card-excerpt">${a.excerpt}</p>
-        <span class="pilihan-card-meta">${a.authorName} · ${formatDate(a.date)}</span>
-      </div>
-    </article>`;
-  }
-
-  function pilihanSmallCardHTML(id, a){
-    return `<article class="pilihan-small-card" onclick="openArticle('${id}')" style="background-image:url('${a.images[0]}')">
-      <div class="pilihan-card-overlay">
-        <span class="pilihan-card-tag">${segName(a.segment)}</span>
-        <h3 class="pilihan-card-title-sm">${a.title}</h3>
-        <span class="pilihan-card-meta">${formatDate(a.date)}</span>
-      </div>
-    </article>`;
-  }
-
   function renderPilihanRedaksi(){
-    const container = document.getElementById("pilihan-redaksi-grid");
-    if(!container) return;
-    const picks = shuffleArray(Object.entries(ARTICLES)).slice(0, 3);
-    if(!picks.length){
-      container.innerHTML = `<p class="empty-note">Belum ada tulisan yang diterbitkan. Tulisan baru bakal langsung muncul di sini setelah di-publish.</p>`;
-      return;
-    }
-    const big = picks[0];
-    const smalls = picks.slice(1);
-    container.innerHTML = pilihanBigCardHTML(big[0], big[1]) +
-      `<div class="pilihan-small-col">${smalls.map(([id,a])=>pilihanSmallCardHTML(id,a)).join("")}</div>`;
+    const entries = shuffleArray(Object.entries(ARTICLES)).slice(0, 3);
+    buildHeroSlider("hero-slider", entries, {
+      ctaLabel: "Baca Artikel →",
+      labelText: "Artikel Utama",
+      emptyText: "Belum ada tulisan yang diterbitkan. Tulisan baru bakal langsung muncul di sini setelah di-publish."
+    });
   }
 
   function terbaruItemHTML(id, a){
