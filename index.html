@@ -17,7 +17,7 @@
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink: #f3ece1;
@@ -30,9 +30,19 @@
     --accent-dim: #8a3521;
     --muted: #6b6355;
     --surface: #ffffff;
-    --serif: "Inter", sans-serif;
+    --serif: "Fraunces", serif;
     --sans: "Inter", sans-serif;
     --mono: "Inter", sans-serif;
+  }
+  /* DARK MODE: cuma warna level halaman yang berubah (bg, teks, aksen) —
+     kartu/badge tetap terang karena teksnya hardcoded gelap, biar nggak ada
+     yang jadi nggak kebaca. */
+  body.dark-mode{
+    --ink: #14192b;
+    --ink-deep: #0b0e19;
+    --text: #f3ece1;
+    --accent-ink: #f0c94a;
+    --muted: #a89e88;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -43,6 +53,7 @@
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
+    transition:background .25s ease, color .25s ease;
   }
   a{color:inherit; text-decoration:none;}
   img{max-width:100%; display:block;}
@@ -123,6 +134,61 @@
   /* HERO */
   /* HERO SLIDER: Top 3 Rekomendasi */
   .hero-slider-section{position:relative;}
+
+  /* HERO STATIS: headline + collage */
+  .hero-static{padding:64px 0 40px;}
+  .hero-static-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center;}
+  .hero-static-label{font-family:var(--mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--accent-ink); display:block; margin-bottom:16px;}
+  .hero-static-title{font-family:var(--serif); font-weight:800; font-size:clamp(2rem,4.2vw,3rem); line-height:1.1; letter-spacing:-0.01em; margin-bottom:20px;}
+  .hero-static-dek{font-size:1.02rem; color:var(--muted); max-width:48ch; margin-bottom:28px; line-height:1.6;}
+  .hero-static-visual{position:relative; min-height:340px;}
+  .hero-collage{position:relative; width:100%; height:100%; min-height:340px;}
+  .hero-collage::before{
+    content:""; position:absolute; top:8%; right:6%; width:70%; height:70%; border-radius:50%;
+    background:radial-gradient(circle, #e8b9a8 0%, #e8b9a8 100%); opacity:0.55; z-index:0;
+  }
+  .collage-img{position:absolute; border-radius:10px; box-shadow:0 20px 40px -18px rgba(0,0,0,0.35); object-fit:cover;}
+  .collage-1{width:58%; height:78%; top:2%; right:8%; z-index:2;}
+  .collage-2{width:38%; height:32%; bottom:4%; left:0; z-index:3; transform:rotate(-4deg);}
+  .collage-3{width:30%; height:30%; bottom:10%; right:2%; z-index:3; border-radius:50%; transform:rotate(3deg);}
+  @media (max-width:860px){
+    .hero-static-grid{grid-template-columns:1fr;}
+    .hero-static-visual{order:-1; min-height:280px;}
+  }
+
+  /* SEGMENT ICON ROW */
+  .segment-icons-section{padding:20px 0 56px;}
+  .segment-icon-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:rgba(28,22,16,0.1); border:1px solid rgba(28,22,16,0.1);}
+  .segment-icon-item{
+    background:var(--surface); border:none; padding:24px 14px; text-align:center; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:8px; transition:.2s ease;
+  }
+  .segment-icon-item:hover{background:var(--ink);}
+  .segment-icon-glyph{font-size:1.6rem;}
+  .segment-icon-name{font-family:var(--serif); font-weight:700; font-size:0.92rem; color:var(--text);}
+  .segment-icon-desc{font-size:0.74rem; color:var(--muted); line-height:1.3;}
+  @media (max-width:760px){ .segment-icon-grid{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:460px){ .segment-icon-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* EDITORIAL: Pilihan Redaksi (slider) + sidebar Rekomendasi */
+  .editorial-section{padding:20px 0 56px;}
+  .editorial-grid{display:grid; grid-template-columns:2fr 1fr; gap:32px; align-items:start;}
+  .section-head-row{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px;}
+  .section-title-sm{font-family:var(--serif); font-weight:800; font-size:1.35rem;}
+  .see-all-link{font-family:var(--mono); font-size:0.78rem; color:var(--accent-ink); cursor:pointer; text-decoration:underline;}
+  .hero-slider-contained{min-height:440px; border-radius:14px;}
+  .hero-slider-contained .hero-slide{border-radius:14px;}
+  .sidebar-list{display:flex; flex-direction:column;}
+  .sidebar-item{padding:16px 0; border-bottom:1px solid rgba(28,22,16,0.12); cursor:pointer;}
+  .sidebar-item:first-child{padding-top:0;}
+  .sidebar-item-tag{font-family:var(--mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent-ink); display:block; margin-bottom:6px;}
+  .sidebar-item-title{font-family:var(--serif); font-weight:700; font-size:0.95rem; line-height:1.35; margin-bottom:6px; transition:.2s ease;}
+  .sidebar-item:hover .sidebar-item-title{color:var(--accent-ink);}
+  .sidebar-item-date{font-family:var(--mono); font-size:0.72rem; color:var(--muted);}
+  @media (max-width:860px){
+    .editorial-grid{grid-template-columns:1fr;}
+    .hero-slider-contained{min-height:380px;}
+  }
   .hero-slider{position:relative; min-height:600px; overflow:hidden; background:var(--ink-deep);}
   .hero-slide{
     position:absolute; inset:0; opacity:0; visibility:hidden; overflow:hidden;
@@ -164,11 +230,11 @@
     .hero-nav{width:36px; height:36px; font-size:1.2rem;}
   }
 
-  /* HERO QUOTE (hero-clip dipertahankan, sekarang mengambang di pojok kanan atas hero) */
+  /* HERO QUOTE (hero-clip dipertahankan, sekarang mengambang di pojok kiri bawah area collage) */
   .hero-clip{
-    position:absolute; top:28px; right:5%; z-index:6;
+    position:absolute; bottom:-20px; left:-10px; z-index:6;
     background:var(--surface); color:var(--ink-deep);
-    padding:16px; transform:rotate(-3deg); max-width:200px; width:38%;
+    padding:14px; transform:rotate(-4deg); max-width:170px; width:42%;
     box-shadow:0 24px 50px -18px rgba(0,0,0,0.6);
   }
   .hero-clip::before{
@@ -177,10 +243,10 @@
   }
   .hero-track-wrap{position:relative; aspect-ratio:4/5; overflow:hidden;}
   .hero-track-wrap .thumb-track img{filter:sepia(0.15) contrast(1.02);}
-  .hero-clip figcaption{font-family:var(--serif); font-style:italic; font-size:0.72rem; margin-top:10px; color:#4a4536; line-height:1.4;}
+  .hero-clip figcaption{font-family:var(--serif); font-style:italic; font-size:0.68rem; margin-top:8px; color:#4a4536; line-height:1.35;}
   @media (max-width:760px){
-    .hero-clip{max-width:140px; width:34%; top:18px; right:4%; padding:10px;}
-    .hero-clip figcaption{font-size:0.62rem; margin-top:6px;}
+    .hero-clip{max-width:120px; width:36%; bottom:-14px; left:-6px; padding:8px;}
+    .hero-clip figcaption{font-size:0.58rem; margin-top:6px;}
   }
 
   .btn-primary{
@@ -313,6 +379,10 @@
   .page-ellipsis{display:flex; align-items:center; justify-content:center; min-width:24px; color:var(--muted);}
 
   /* READER (view-article) */
+  .reading-progress-bar{position:fixed; top:0; left:0; height:3px; width:0%; background:var(--accent); z-index:100; transition:width .1s linear;}
+  .breadcrumb{font-family:var(--mono); font-size:0.78rem; color:var(--muted); margin-bottom:16px;}
+  .breadcrumb span{cursor:pointer;}
+  .breadcrumb span:hover{color:var(--accent-ink);}
   .reader-tag{cursor:pointer;}
   .reader-title{font-family:var(--serif); font-weight:800; font-size:clamp(1.8rem,4vw,2.7rem); line-height:1.12; letter-spacing:-0.01em; margin-bottom:18px;}
   .reader-dek{font-family:var(--serif); font-style:italic; font-weight:500; font-size:1.15rem; color:var(--muted); line-height:1.5; margin-bottom:24px;}
@@ -499,6 +569,19 @@
   .menu-close{background:none; border:1px solid rgba(246,241,228,0.35); color:var(--paper); font-size:1rem; width:38px; height:38px; cursor:pointer; transition:.2s ease;}
   .menu-close:hover{border-color:var(--accent); color:var(--accent);}
   .menu-nav{padding:30px 24px 60px; display:flex; flex-direction:column; gap:32px;}
+  .menu-search{display:flex; border:1px solid rgba(246,241,228,0.3);}
+  .menu-search input{flex:1; background:none; border:none; color:var(--paper); font-family:var(--sans); font-size:0.9rem; padding:12px 14px; outline:none;}
+  .menu-search input::placeholder{color:rgba(246,241,228,0.5);}
+  .menu-search button{background:none; border:none; color:var(--paper); padding:12px 14px; cursor:pointer; border-left:1px solid rgba(246,241,228,0.2);}
+  .menu-search button:hover{color:var(--accent);}
+  .menu-theme-toggle{display:flex; align-items:center; gap:12px; padding-top:8px; border-top:1px solid rgba(246,241,228,0.12);}
+  .menu-theme-toggle .theme-label{font-family:var(--mono); font-size:0.8rem; color:rgba(246,241,228,0.7);}
+  .switch{position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0;}
+  .switch input{opacity:0; width:0; height:0;}
+  .switch-slider{position:absolute; inset:0; background:rgba(246,241,228,0.25); border-radius:24px; cursor:pointer; transition:.2s ease;}
+  .switch-slider::before{content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s ease;}
+  .switch input:checked + .switch-slider{background:var(--accent);}
+  .switch input:checked + .switch-slider::before{transform:translateX(20px);}
   .menu-group{display:flex; flex-direction:column; gap:2px;}
   .menu-label{font-family:var(--mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:#b5a88f; margin-bottom:8px;}
   .menu-group a{font-family:var(--serif); font-weight:800; font-size:1.15rem; padding:9px 0; cursor:pointer; transition:.2s ease; border-bottom:1px solid rgba(246,241,228,0.08); display:block;}
@@ -523,6 +606,12 @@
 </style>
 </head>
 <body>
+<script>
+  // Terapkan dark mode SEBELUM konten lain dirender, biar nggak kedip putih dulu.
+  if(localStorage.getItem("literaism-theme") === "dark"){
+    document.body.classList.add("dark-mode");
+  }
+</script>
 
 <header>
   <nav class="wrap">
@@ -558,19 +647,59 @@
 
   <!-- ============ HOME ============ -->
   <div class="view active" id="view-home">
-    <section class="hero-slider-section">
-      <div class="hero-slider" id="hero-slider"></div>
-      <figure class="hero-clip">
-        <div class="hero-track-wrap">
-          <div class="thumb-track">
-            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" alt="Tumpukan buku di meja baca" loading="lazy">
-            <img src="https://images.unsplash.com/photo-1519682577862-22b62b24e493?q=80&w=800&auto=format&fit=crop" alt="Mesin tik tua" loading="lazy">
-            <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop" alt="Rak buku perpustakaan tua" loading="lazy">
-          </div>
-          <div class="thumb-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+    <section class="hero-static">
+      <div class="wrap hero-static-grid">
+        <div class="hero-static-content">
+          <span class="hero-static-label">Baca. Pahami. Rasakan.</span>
+          <h1 class="hero-static-title">Sastra, Sejarah, dan Budaya Pop dalam Satu Ruang.</h1>
+          <p class="hero-static-dek">Literaism adalah media yang menghubungkan kata-kata, masa lalu, dan budaya pop buat memahami zaman sekarang — tanpa gaya menggurui, tetap jujur sama sumbernya.</p>
+          <button class="btn-primary" onclick="document.getElementById('pilihan-redaksi').scrollIntoView({behavior:'smooth'})">Jelajahi Artikel</button>
         </div>
-        <figcaption id="hero-clip-caption">Geser buat lihat kutipan lainnya →</figcaption>
-      </figure>
+        <div class="hero-static-visual">
+          <div class="hero-collage">
+            <img class="collage-img collage-1" src="https://images.unsplash.com/photo-1608501078713-8e445a709b39?q=80&w=700&auto=format&fit=crop" alt="Patung klasik" loading="lazy">
+            <img class="collage-img collage-2" src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=500&auto=format&fit=crop" alt="Buku terbuka" loading="lazy">
+            <img class="collage-img collage-3" src="https://images.unsplash.com/photo-1493225457124-a3eac332f0c9?q=80&w=500&auto=format&fit=crop" alt="Piringan vinyl" loading="lazy">
+          </div>
+          <figure class="hero-clip">
+            <div class="hero-track-wrap">
+              <div class="thumb-track">
+                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" alt="Tumpukan buku di meja baca" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1519682577862-22b62b24e493?q=80&w=800&auto=format&fit=crop" alt="Mesin tik tua" loading="lazy">
+                <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop" alt="Rak buku perpustakaan tua" loading="lazy">
+              </div>
+              <div class="thumb-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+            </div>
+            <figcaption id="hero-clip-caption">Geser buat lihat kutipan lainnya →</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="segment-icons-section">
+      <div class="wrap">
+        <div class="segment-icon-grid" id="segment-icon-grid"></div>
+      </div>
+    </section>
+
+    <section class="editorial-section" id="pilihan-redaksi">
+      <div class="wrap">
+        <div class="editorial-grid">
+          <div class="editorial-main">
+            <div class="section-head-row">
+              <h2 class="section-title-sm">Pilihan Redaksi</h2>
+              <a class="see-all-link" onclick="document.getElementById('articles').scrollIntoView({behavior:'smooth'})">Lihat semua</a>
+            </div>
+            <div class="hero-slider hero-slider-contained" id="hero-slider"></div>
+          </div>
+          <div class="editorial-sidebar">
+            <div class="section-head-row">
+              <h2 class="section-title-sm">Rekomendasi</h2>
+            </div>
+            <div class="sidebar-list" id="sidebar-recommend-list"></div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="articles" id="articles">
@@ -611,17 +740,6 @@
       </div>
     </section>
 
-    <section class="pillars" id="pillars">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 class="section-title">Yang Kita Bahas</h2>
-          <span class="section-note">Klik buat lihat semua tulisan per segmen</span>
-        </div>
-        <div class="pillar-grid" id="home-pillar-grid"></div>
-      </div>
-    </section>
-
-
     <section class="subscribe" id="subscribe">
       <div class="wrap">
         <div class="sub-box">
@@ -658,8 +776,10 @@
 
   <!-- ============ ARTICLE (full read) ============ -->
   <div class="view" id="view-article">
+    <div class="reading-progress-bar" id="reading-progress-bar"></div>
     <div class="wrap view-inner">
       <button class="back-link" onclick="showHome()">← Kembali</button>
+      <div class="breadcrumb" id="reader-breadcrumb">Beranda / <span id="reader-breadcrumb-seg" onclick="if(currentArticle) openSegment(currentArticle.segment)">Segmen</span></div>
       <span class="eyebrow reader-tag" id="reader-tag" onclick="if(currentArticle) openSegment(currentArticle.segment)">Segmen</span>
       <h1 class="reader-title" id="reader-title">Judul artikel</h1>
       <p class="reader-dek" id="reader-dek"></p>
@@ -962,6 +1082,11 @@
       <button class="menu-close" onclick="closeMenu()" aria-label="Tutup menu">✕</button>
     </div>
     <nav class="menu-nav" id="menu-nav">
+      <div class="menu-search">
+        <input type="text" id="menu-search-input" placeholder="Cari tulisan..." onkeydown="if(event.key==='Enter'){ menuRunSearch(); }">
+        <button onclick="menuRunSearch()" aria-label="Cari">🔍</button>
+      </div>
+
       <div class="menu-group">
         <span class="menu-label">Menu</span>
         <a onclick="closeMenu(); showHome();">Beranda</a>
@@ -973,6 +1098,15 @@
         <span class="menu-label">Lainnya</span>
         <a onclick="closeMenu(); showSubmit();">Kirim Tulisan</a>
         <a onclick="closeMenu(); showContact();">Informasi Kontak</a>
+      </div>
+
+      <div class="menu-theme-toggle">
+        <span class="theme-label">Light</span>
+        <label class="switch">
+          <input type="checkbox" id="theme-toggle" onchange="toggleDarkMode()">
+          <span class="switch-slider"></span>
+        </label>
+        <span class="theme-label">Dark</span>
       </div>
     </nav>
   </div>
@@ -1144,6 +1278,24 @@
     </button>`;
   }
 
+  const SEGMENT_ICONS = {
+    "sastra": "🪶",
+    "sejarah": "🏛️",
+    "modern-culture": "💬",
+    "film": "🎬",
+    "game": "🎮",
+    "musik": "🎵"
+  };
+
+  function segmentIconHTML(seg){
+    const icon = SEGMENT_ICONS[seg.key] || "✦";
+    return `<button class="segment-icon-item" onclick="openSegment('${seg.key}')">
+      <span class="segment-icon-glyph">${icon}</span>
+      <span class="segment-icon-name">${seg.name}</span>
+      <span class="segment-icon-desc">${seg.desc}</span>
+    </button>`;
+  }
+
   function initCarousels(root){
     (root || document).querySelectorAll(".thumb-track").forEach(track=>{
       const wrap = track.parentElement;
@@ -1270,6 +1422,7 @@
     const author = AUTHORS[a.authorName] || {photo:"", bio:""};
 
     document.getElementById("reader-tag").textContent = segName(a.segment);
+    document.getElementById("reader-breadcrumb-seg").textContent = segName(a.segment);
     document.getElementById("reader-title").textContent = a.title;
     document.getElementById("reader-dek").textContent = a.excerpt || "";
     document.getElementById("reader-author-photo").src = author.photo;
@@ -1528,10 +1681,27 @@
     document.body.style.overflow = "";
   }
 
+  function toggleDarkMode(){
+    const isDark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("literaism-theme", isDark ? "dark" : "light");
+    const toggle = document.getElementById("theme-toggle");
+    if(toggle) toggle.checked = isDark;
+  }
+
+  function menuRunSearch(){
+    const q = document.getElementById("menu-search-input").value;
+    document.getElementById("search-input").value = q;
+    closeMenu();
+    runSearch();
+  }
+
   /* ======================= INITIAL RENDER ======================= */
   async function init(){
-    document.getElementById("home-pillar-grid").innerHTML =
-      SEGMENTS.map((s,i)=>pillarHTML(s, String(i+1).padStart(2,"0"))).join("");
+    const themeToggle = document.getElementById("theme-toggle");
+    if(themeToggle) themeToggle.checked = document.body.classList.contains("dark-mode");
+
+    document.getElementById("segment-icon-grid").innerHTML =
+      SEGMENTS.map(s=>segmentIconHTML(s)).join("");
 
     document.getElementById("nav-center").innerHTML =
       SEGMENTS.map(s=>`<a onclick="openSegment('${s.key}')">${s.name}</a>`).join("");
@@ -1573,6 +1743,20 @@
     });
   }
   init();
+
+  window.addEventListener("scroll", () => {
+    const bar = document.getElementById("reading-progress-bar");
+    const text = document.getElementById("reader-text");
+    if(!bar || !text || !document.getElementById("view-article").classList.contains("active")){
+      if(bar) bar.style.width = "0%";
+      return;
+    }
+    const rect = text.getBoundingClientRect();
+    const total = rect.height - window.innerHeight;
+    const scrolled = -rect.top;
+    const pct = total > 0 ? Math.min(100, Math.max(0, (scrolled / total) * 100)) : 0;
+    bar.style.width = pct + "%";
+  }, {passive:true});
 
   // Dipakai tiap kali KITA sendiri yang mengubah hash (klik tulisan, segmen, dll),
   // biar event hashchange yang ikut ke-trigger nggak dobel nge-render ulang.
@@ -1622,7 +1806,27 @@
       : `<p class="empty-note">Belum ada tulisan yang diterbitkan. Tulisan baru bakal langsung muncul di sini setelah di-publish.</p>`;
     initCarousels(grid);
     renderMoreReading();
+    renderSidebarRecommend();
     if(typeof initHeroSlider === "function") initHeroSlider();
+  }
+
+  function sidebarItemHTML(id, a){
+    return `<article class="sidebar-item" onclick="openArticle('${id}')">
+      <div class="sidebar-item-content">
+        <span class="sidebar-item-tag">${segName(a.segment)}</span>
+        <h3 class="sidebar-item-title">${a.title}</h3>
+        <span class="sidebar-item-date">${formatDate(a.date)}</span>
+      </div>
+    </article>`;
+  }
+
+  function renderSidebarRecommend(){
+    const list = document.getElementById("sidebar-recommend-list");
+    if(!list) return;
+    const picks = shuffleArray(Object.entries(ARTICLES)).slice(0, 4);
+    list.innerHTML = picks.length
+      ? picks.map(([id,a])=>sidebarItemHTML(id,a)).join("")
+      : `<p class="empty-note">Belum ada rekomendasi. Cek lagi nanti!</p>`;
   }
 
   function readingItemHTML(id, a){
