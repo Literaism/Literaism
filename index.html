@@ -146,15 +146,8 @@
   .hero-static-title{font-family:var(--serif); font-weight:800; font-size:clamp(2rem,4.2vw,3rem); line-height:1.1; letter-spacing:-0.01em; margin-bottom:20px;}
   .hero-static-dek{font-size:1.02rem; color:var(--muted); max-width:48ch; margin-bottom:28px; line-height:1.6;}
   .hero-static-visual{position:relative; min-height:340px;}
-  .hero-collage{position:relative; width:100%; height:100%; min-height:340px;}
-  .hero-collage::before{
-    content:""; position:absolute; top:8%; right:6%; width:70%; height:70%; border-radius:50%;
-    background:radial-gradient(circle, #e8b9a8 0%, #e8b9a8 100%); opacity:0.55; z-index:0;
-  }
-  .collage-img{position:absolute; border-radius:10px; box-shadow:0 20px 40px -18px rgba(0,0,0,0.35); object-fit:cover;}
-  .collage-1{width:58%; height:78%; top:2%; right:8%; z-index:2;}
-  .collage-2{width:38%; height:32%; bottom:4%; left:0; z-index:3; transform:rotate(-4deg);}
-  .collage-3{width:30%; height:30%; bottom:10%; right:2%; z-index:3; border-radius:50%; transform:rotate(3deg);}
+  .hero-collage{position:relative; width:100%; height:100%; min-height:340px; display:flex; align-items:center; justify-content:center;}
+  .collage-main{width:100%; max-width:520px; height:auto; object-fit:contain;}
   @media (max-width:860px){
     .hero-static-grid{grid-template-columns:1fr;}
     .hero-static-visual{order:-1; min-height:280px;}
@@ -748,16 +741,14 @@
         </div>
         <div class="hero-static-visual">
           <div class="hero-collage">
-            <img class="collage-img collage-1" src="https://images.unsplash.com/photo-1608501078713-8e445a709b39?q=80&w=700&auto=format&fit=crop" alt="Patung klasik" loading="lazy">
-            <img class="collage-img collage-2" src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=500&auto=format&fit=crop" alt="Buku terbuka" loading="lazy">
-            <img class="collage-img collage-3" src="https://images.unsplash.com/photo-1493225457124-a3eac332f0c9?q=80&w=500&auto=format&fit=crop" alt="Piringan vinyl" loading="lazy">
+            <img class="collage-img collage-main" src="assets/hero-collage.png" alt="Kolase sastra, sejarah, dan budaya pop" loading="lazy">
           </div>
           <figure class="hero-clip">
             <div class="hero-track-wrap">
               <div class="thumb-track">
-                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop" alt="Tumpukan buku di meja baca" loading="lazy">
-                <img src="https://images.unsplash.com/photo-1519682577862-22b62b24e493?q=80&w=800&auto=format&fit=crop" alt="Mesin tik tua" loading="lazy">
-                <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=800&auto=format&fit=crop" alt="Rak buku perpustakaan tua" loading="lazy">
+                <img src="assets/nietzsche.jpg" alt="Friedrich Nietzsche" loading="lazy">
+                <img src="assets/camus.jpg" alt="Albert Camus" loading="lazy">
+                <img src="assets/kafka.jpg" alt="Franz Kafka" loading="lazy">
               </div>
               <div class="thumb-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
             </div>
