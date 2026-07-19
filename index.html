@@ -812,7 +812,7 @@
           <h2 class="section-title-sm">Pilihan Redaksi</h2>
           <a class="see-all-link" onclick="document.getElementById('artikel-terbaru').scrollIntoView({behavior:'smooth'})">Lihat Semua <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
         </div>
-        <div class="hero-slider hero-slider-contained" id="hero-slider"></div>
+        <div class="hero-slider hero-slider-contained reveal" id="hero-slider"></div>
       </div>
     </section>
 
@@ -849,7 +849,7 @@
           <h2 class="section-title">Video Terbaru</h2>
           <span class="section-note">Langsung dari YouTube Literaism</span>
         </div>
-        <div class="video-frame">
+        <div class="video-frame reveal">
           <div class="video-embed">
             <iframe id="yt-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video terbaru Literaism" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
           </div>
@@ -2015,6 +2015,7 @@
     renderTrendingStrip();
     renderTerbaruList();
     renderMoreReading();
+    initScrollReveal();
   }
 
   function renderPilihanRedaksi(){
@@ -2027,7 +2028,7 @@
   }
 
   function trendingStripItemHTML(id, a, num){
-    return `<a onclick="openArticle('${id}')" class="trending-strip-item">
+    return `<a onclick="openArticle('${id}')" class="trending-strip-item reveal">
       <span class="trending-strip-num">${String(num).padStart(2,"0")}</span>
       <p class="trending-strip-title">${a.title}</p>
     </a>`;
@@ -2043,7 +2044,7 @@
   }
 
   function terbaruItemHTML(id, a){
-    return `<a class="latest-article-card" onclick="openArticle('${id}')">
+    return `<a class="latest-article-card reveal" onclick="openArticle('${id}')">
       <div class="latest-article-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
       <span class="latest-article-tag">${segName(a.segment)}</span>
       <h3 class="latest-article-title">${a.title}</h3>
@@ -2071,7 +2072,7 @@
 
   function readingItemHTML(id, a){
     return `
-    <article class="reading-item" onclick="openArticle('${id}')">
+    <article class="reading-item reveal" onclick="openArticle('${id}')">
       <div class="reading-item-main">
         <div class="reading-item-meta">${segName(a.segment)} <span>· ${formatDate(a.date)}</span></div>
         <h3 class="reading-item-title"><a href="/artikel/${id}" onclick="event.preventDefault(); event.stopPropagation(); openArticle('${id}');" style="color:inherit;">${a.title}</a></h3>
