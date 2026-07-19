@@ -17,20 +17,25 @@
 <meta name="robots" content="index, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Libre+Baskerville:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   :root{
-    --ink: #f3ece1;
-    --ink-deep: #1c1610;
-    --paper: #f3ece1;
-    --paper-dim: #ece4d5;
-    --text: #2b2318;
-    --accent: #e8b923;
-    --accent-ink: #7a4f14;
-    --accent-dim: #8a3521;
-    --muted: #6b6355;
+    --ink: #FCFAF7;
+    --ink-deep: #214636;
+    --paper: #F6F2EA;
+    --paper-dim: #F6F2EA;
+    --text: #232323;
+    --accent: #C8A56A;
+    --accent-ink: #214636;
+    --accent-dim: #8A6B4D;
+    --muted: #6D6D6D;
     --surface: #ffffff;
-    --serif: "Fraunces", serif;
+    --border-c: #E7E3DD;
+    --serif: "Cormorant Garamond", serif;
+    --subserif: "Libre Baskerville", serif;
     --sans: "Inter", sans-serif;
     --mono: "Inter", sans-serif;
   }
@@ -38,11 +43,12 @@
      kartu/badge tetap terang karena teksnya hardcoded gelap, biar nggak ada
      yang jadi nggak kebaca. */
   body.dark-mode{
-    --ink: #14192b;
-    --ink-deep: #0b0e19;
-    --text: #f3ece1;
-    --accent-ink: #f0c94a;
-    --muted: #a89e88;
+    --ink: #121212;
+    --ink-deep: #3E7A5E;
+    --text: #EDEAE3;
+    --accent-ink: #D9BC85;
+    --muted: #A6A29A;
+    --border-c: #2A2A2A;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -71,29 +77,38 @@
   }
   nav.wrap{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; padding:14px 20px;}
   .logo{display:flex; align-items:center; gap:9px; cursor:pointer; order:1;}
-  .logo-text{font-family:var(--serif); font-weight:700; font-size:1.4rem; letter-spacing:-0.01em; color:var(--text);}
+  .logo-mark{flex-shrink:0; height:30px; width:auto; object-fit:contain;}
+  .logo-text{font-family:var(--serif); font-weight:600; font-size:1.6rem; letter-spacing:0.02em; color:var(--text);}
   .nav-center{
     order:3; flex-basis:100%; display:flex; gap:22px; overflow-x:auto; white-space:nowrap;
     scrollbar-width:none; padding:2px 2px 2px;
   }
   .nav-center::-webkit-scrollbar{display:none;}
   .nav-center a{
-    font-family:var(--sans); font-weight:500; font-size:0.88rem;
-    color:var(--text); opacity:0.8; cursor:pointer; padding:4px 2px; transition:.2s ease; flex-shrink:0;
+    font-family:var(--sans); font-weight:400; font-size:0.92rem;
+    color:var(--muted); cursor:pointer; padding:4px 2px; transition:.2s ease; flex-shrink:0;
+    background-image:linear-gradient(currentColor,currentColor); background-size:0% 1px;
+    background-position:left bottom; background-repeat:no-repeat;
   }
-  .nav-center a:hover{opacity:1; color:var(--accent-ink);}
+  .nav-center a:hover{color:var(--text); background-size:100% 1px;}
   .nav-right{order:2; display:flex; align-items:center; gap:6px; flex-shrink:0;}
   .nav-icon-btn{
     display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%;
     background:none; border:none; color:var(--text); cursor:pointer; transition:.2s ease;
   }
   .nav-icon-btn:hover{background:rgba(28,22,16,0.06); color:var(--accent-ink);}
-  .header-search-bar{max-height:0; overflow:hidden; transition:max-height .25s ease; border-bottom:0 solid rgba(28,22,16,0.1);}
-  .header-search-bar.open{max-height:80px; border-bottom-width:1px;}
-  .header-search-inner{display:flex; gap:10px; padding:14px 24px;}
-  .header-search-inner input{
-    flex:1; background:var(--surface); border:1px solid rgba(28,22,16,0.2); color:var(--text);
-    font-family:var(--sans); font-size:0.92rem; padding:10px 14px; outline:none; border-radius:6px;
+  .search-overlay{
+    position:fixed; inset:0; z-index:300; background:var(--ink); display:none;
+    padding-top:7rem; overflow-y:auto;
+  }
+  .search-overlay.open{display:block;}
+  .search-overlay-close{position:absolute; top:24px; right:24px; background:none; border:none; color:var(--muted); cursor:pointer;}
+  .search-overlay-close:hover{color:var(--text);}
+  .search-overlay-inner{max-width:36rem; margin:0 auto; padding:0 24px;}
+  .search-overlay-row{display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(28,22,16,0.2); padding-bottom:16px; color:var(--muted);}
+  .search-overlay-row input{
+    flex:1; background:none; border:none; color:var(--text); font-family:var(--subserif); font-style:italic;
+    font-size:1.15rem; outline:none;
   }
   .menu-btn{
     display:flex; align-items:center; gap:8px; background:none; border:1px solid rgba(28,22,16,0.3);
@@ -139,115 +154,113 @@
   /* HERO SLIDER: Top 3 Rekomendasi */
   .hero-slider-section{position:relative;}
 
-  /* HERO STATIS: headline + collage */
-  .hero-static{padding:64px 0 40px;}
-  .hero-static-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center;}
-  .hero-static-label{font-family:var(--mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--accent-ink); display:block; margin-bottom:16px;}
-  .hero-static-title{font-family:var(--serif); font-weight:800; font-size:clamp(2rem,4.2vw,3rem); line-height:1.1; letter-spacing:-0.01em; margin-bottom:20px;}
-  .hero-static-dek{font-size:1.02rem; color:var(--muted); max-width:48ch; margin-bottom:28px; line-height:1.6;}
-  .hero-static-visual{position:relative; min-height:340px;}
-  .hero-collage{position:relative; width:100%; height:100%; min-height:340px; display:flex; align-items:center; justify-content:center;}
-  .collage-main{width:100%; max-width:520px; height:auto; object-fit:contain;}
+  /* HERO v2: sesuai referensi — eyebrow, judul dgn kata italic, 2 tombol pill, 1 foto rounded */
+  .hero-v2{padding:56px 0 80px;}
+  .hero-v2-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center;}
+  .hero-v2-eyebrow{font-family:var(--sans); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--accent-dim); margin-bottom:20px;}
+  .hero-v2-title{font-family:var(--serif); font-weight:600; font-size:clamp(2.2rem,4.6vw,3.4rem); line-height:1.08; color:var(--text); margin-bottom:24px;}
+  .hero-v2-italic{font-style:italic; color:var(--ink-deep);}
+  .hero-v2-dek{font-family:var(--sans); font-size:1.02rem; color:var(--muted); max-width:34rem; line-height:1.75; margin-bottom:32px;}
+  .hero-v2-actions{display:flex; flex-wrap:wrap; gap:14px;}
+  .btn-pill-primary{
+    font-family:var(--sans); font-weight:600; font-size:0.92rem; letter-spacing:0.02em;
+    background:var(--ink-deep); color:var(--paper); padding:14px 28px; border:none; border-radius:9999px; cursor:pointer; transition:.2s ease;
+  }
+  .btn-pill-primary:hover{opacity:0.88;}
+  .btn-pill-outline{
+    font-family:var(--sans); font-weight:600; font-size:0.92rem; letter-spacing:0.02em;
+    background:none; color:var(--text); padding:14px 28px; border:1px solid rgba(28,22,16,0.25); border-radius:9999px;
+    cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:.2s ease;
+  }
+  .btn-pill-outline:hover{border-color:var(--accent-ink); color:var(--accent-ink);}
+  .hero-v2-visual{position:relative; min-height:340px;}
+  .hero-v2-image-wrap{border-radius:16px; overflow:hidden; box-shadow:0 30px 60px -20px rgba(33,70,54,0.25); background:var(--surface); display:flex; align-items:center; justify-content:center; min-height:340px;}
+  .hero-v2-image-wrap img{width:100%; max-width:460px; height:auto; object-fit:contain;}
   @media (max-width:860px){
-    .hero-static-grid{grid-template-columns:1fr;}
-    .hero-static-visual{order:-1; min-height:280px;}
+    .hero-v2-grid{grid-template-columns:1fr;}
+    .hero-v2-visual{order:-1; min-height:280px;}
   }
 
-  /* SEGMENT ICON ROW */
-  .segment-icons-section{padding:20px 0 56px;}
+  /* SEGMENT ICON ROW (cat-card style, sesuai referensi) */
+  .segment-icons-section{padding:30px 0 70px;}
+  .segment-icons-title{font-family:var(--serif); font-weight:600; font-size:1.9rem; color:var(--text); text-align:center; margin-bottom:40px;}
   .segment-icon-grid{
     display:grid; grid-template-columns:repeat(6,1fr);
-    background:transparent; border:none;
   }
   .segment-icon-item{
-    background:none; border:none; border-right:1px solid rgba(28,22,16,0.12);
-    padding:24px 14px; text-align:center; cursor:pointer;
-    display:flex; flex-direction:column; align-items:center; gap:8px; transition:.2s ease;
+    background:none; border:none; border-left:1px solid var(--border-c);
+    padding:32px 20px; text-align:center; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:0; transition:.2s ease;
   }
-  .segment-icon-item:last-child{border-right:none;}
-  .segment-icon-item:hover{background:rgba(28,22,16,0.04); border-radius:8px;}
-  .segment-icon-glyph{font-size:1.6rem;}
-  .segment-icon-name{font-family:var(--serif); font-weight:700; font-size:0.92rem; color:var(--text);}
-  .segment-icon-desc{font-size:0.74rem; color:var(--muted); line-height:1.3;}
-  @media (max-width:760px){ .segment-icon-grid{grid-template-columns:repeat(3,1fr);} .segment-icon-item{border-bottom:1px solid rgba(28,22,16,0.12);} }
-  @media (max-width:460px){ .segment-icon-grid{grid-template-columns:repeat(2,1fr);} }
+  .segment-icon-item:first-child{border-left:none;}
+  .segment-icon-item:hover{background:rgba(122,79,20,0.04);}
+  .segment-icon-glyph{font-size:2rem; line-height:1; margin-bottom:14px;}
+  .segment-icon-name{font-family:var(--subserif); font-weight:700; font-size:1.05rem; color:var(--text); margin-bottom:10px;}
+  .segment-icon-desc{font-size:0.85rem; color:var(--muted); line-height:1.6;}
+  @media (max-width:760px){
+    .segment-icon-grid{grid-template-columns:repeat(2,1fr);}
+    .segment-icon-item{border-left:none; border-top:1px solid var(--border-c);}
+    .segment-icon-item:nth-child(odd){border-left:none;}
+    .segment-icon-item:nth-child(-n+2){border-top:none;}
+  }
+  @media (max-width:460px){
+    .segment-icon-grid{grid-template-columns:1fr;}
+    .segment-icon-item{border-top:1px solid var(--border-c);}
+    .segment-icon-item:first-child{border-top:none;}
+  }
 
-  /* EDITORIAL: Pilihan Redaksi (grid statis) + Terbaru + sidebar Trending/Newsletter */
+  .reveal{
+    opacity:0; transform:translateY(28px) scale(0.96);
+    transition:opacity .6s cubic-bezier(.16,.8,.3,1), transform .6s cubic-bezier(.16,.8,.3,1);
+  }
+  .reveal.in-view{opacity:1; transform:translateY(0) scale(1);}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1; transform:none; transition:none;}
+  }
+
+  /* EDITORIAL: Pilihan Redaksi (slider) + Trending strip + Artikel Terbaru grid */
   .editorial-section{padding:20px 0 0;}
-  .editorial-grid{display:grid; grid-template-columns:2fr 1fr; gap:40px; align-items:start;}
-  .section-head-row{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px;}
-  .section-title-sm{font-family:var(--serif); font-weight:800; font-size:1.35rem;}
-  .see-all-link{font-family:var(--mono); font-size:0.78rem; color:var(--accent-ink); cursor:pointer; text-decoration:underline;}
+  .section-head-row{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px;}
+  .section-title-sm{font-family:var(--serif); font-weight:600; font-size:1.9rem; color:var(--text);}
+  .see-all-link{
+    font-family:var(--sans); font-size:0.9rem; color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+    background-image:linear-gradient(currentColor,currentColor); background-size:0% 1px; background-position:left bottom; background-repeat:no-repeat; transition:.2s ease;
+  }
+  .see-all-link:hover{background-size:100% 1px; color:var(--text);}
 
-  /* Pilihan Redaksi: 1 kartu besar + 2 kartu kecil */
-  .pilihan-redaksi-grid{display:grid; grid-template-columns:1.4fr 1fr; gap:16px; min-height:360px;}
-  .pilihan-big-card, .pilihan-small-card{
-    position:relative; border-radius:10px; overflow:hidden; cursor:pointer;
-    background-size:cover; background-position:center; display:flex; align-items:flex-end;
-    box-shadow:0 10px 24px -14px rgba(0,0,0,0.3);
+  /* Trending strip: full-bleed hijau tua, list nomor, scroll horizontal */
+  .trending-strip{background:var(--ink-deep); padding:56px 0;}
+  .trending-strip-label{font-family:var(--sans); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--accent); margin-bottom:28px;}
+  .trending-strip-row{display:flex; gap:32px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none;}
+  .trending-strip-row::-webkit-scrollbar{display:none;}
+  .trending-strip-item{display:flex; align-items:flex-start; gap:16px; flex-shrink:0; width:260px; cursor:pointer;}
+  .trending-strip-num{font-family:var(--serif); font-weight:500; font-size:2rem; color:var(--accent); line-height:1;}
+  .trending-strip-title{
+    font-family:var(--subserif); font-size:0.92rem; color:var(--paper); line-height:1.55;
+    background-image:linear-gradient(currentColor,currentColor); background-size:0% 1px; background-position:left bottom; background-repeat:no-repeat; transition:.2s ease;
   }
-  .pilihan-big-card{min-height:360px;}
-  .pilihan-small-col{display:flex; flex-direction:column; gap:16px;}
-  .pilihan-small-card{min-height:172px;}
-  .pilihan-big-card::before, .pilihan-small-card::before{
-    content:""; position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(11,14,25,0.05) 0%, rgba(11,14,25,0.55) 55%, rgba(11,14,25,0.9) 100%);
-  }
-  .pilihan-card-overlay{position:relative; z-index:2; padding:22px; color:#f6f1e4; width:100%; box-sizing:border-box;}
-  .pilihan-card-tag{
-    display:inline-block; background:#fff; color:#1c1610; font-weight:800; font-size:0.68rem; text-transform:uppercase;
-    letter-spacing:0.04em; padding:4px 10px; border-radius:3px; margin-bottom:12px;
-  }
-  .pilihan-card-title{font-family:var(--serif); font-weight:800; font-size:1.5rem; line-height:1.2; margin-bottom:10px;}
-  .pilihan-card-title-sm{font-family:var(--serif); font-weight:800; font-size:1.02rem; line-height:1.25; margin-bottom:8px;}
-  .pilihan-card-excerpt{font-size:0.88rem; color:rgba(246,241,228,0.85); margin-bottom:12px; max-width:44ch;}
-  .pilihan-card-meta{font-family:var(--mono); font-size:0.74rem; color:rgba(246,241,228,0.75);}
-  @media (max-width:700px){
-    .pilihan-redaksi-grid{grid-template-columns:1fr;}
-    .pilihan-small-col{flex-direction:row;}
-    .pilihan-small-card{flex:1; min-height:160px;}
-  }
+  .trending-strip-item:hover .trending-strip-title{background-size:100% 1px;}
 
-  /* Terbaru: list thumbnail + tag + judul + ringkasan + meta */
-  .terbaru-list{display:flex; flex-direction:column;}
-  .terbaru-item{display:flex; gap:16px; padding:20px 0; border-bottom:1px solid rgba(28,22,16,0.1); cursor:pointer;}
-  .terbaru-item:first-child{padding-top:0;}
-  .terbaru-thumb{width:96px; height:80px; flex-shrink:0; border-radius:8px; overflow:hidden; background:var(--paper-dim);}
-  .terbaru-thumb img{width:100%; height:100%; object-fit:cover;}
-  .terbaru-main{flex:1; min-width:0;}
-  .terbaru-tag{font-family:var(--mono); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent-ink); display:block; margin-bottom:6px;}
-  .terbaru-title{font-family:var(--serif); font-weight:700; font-size:1.02rem; line-height:1.3; margin-bottom:5px; transition:.2s ease;}
-  .terbaru-item:hover .terbaru-title{color:var(--accent-ink);}
-  .terbaru-excerpt{font-size:0.85rem; color:var(--muted); line-height:1.45; margin-bottom:6px;}
-  .terbaru-meta{font-family:var(--mono); font-size:0.7rem; color:var(--muted);}
+  /* Artikel Terbaru: grid kartu polos */
+  .latest-articles-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+  .latest-article-card{display:block; cursor:pointer;}
+  .latest-article-thumb{border-radius:12px; overflow:hidden; height:190px; background:var(--paper-dim); margin-bottom:16px;}
+  .latest-article-thumb img{width:100%; height:100%; object-fit:cover;}
+  .latest-article-tag{font-family:var(--sans); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent-dim); display:block; margin-bottom:8px;}
+  .latest-article-title{font-family:var(--subserif); font-weight:400; font-size:1.08rem; color:var(--text); line-height:1.45; margin-bottom:8px;}
+  .latest-article-excerpt{font-size:0.85rem; color:var(--muted); line-height:1.7; margin-bottom:16px;}
+  .latest-article-meta{display:flex; align-items:center; gap:12px; font-size:0.78rem; color:var(--muted);}
+  .latest-article-meta-time{display:flex; align-items:center; gap:5px;}
+  @media (max-width:860px){ .latest-articles-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .latest-articles-grid{grid-template-columns:1fr;} }
 
-  /* Sidebar: Trending + Newsletter */
-  .editorial-sidebar{display:flex; flex-direction:column; gap:32px;}
-  .trending-box, .newsletter-box{background:var(--surface); border-radius:10px; padding:22px; box-shadow:0 8px 20px -14px rgba(0,0,0,0.2);}
-  .sidebar-list{display:flex; flex-direction:column;}
-  .sidebar-item{display:flex; gap:12px; padding:14px 0; border-bottom:1px solid rgba(28,22,16,0.1); cursor:pointer;}
-  .sidebar-item:first-child{padding-top:0;}
-  .sidebar-item-thumb{width:52px; height:52px; flex-shrink:0; border-radius:6px; overflow:hidden; background:var(--paper-dim);}
-  .sidebar-item-thumb img{width:100%; height:100%; object-fit:cover;}
-  .sidebar-item-content{flex:1; min-width:0;}
-  .sidebar-item-tag{font-family:var(--mono); font-size:0.66rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent-ink); display:block; margin-bottom:4px;}
-  .sidebar-item-title{font-family:var(--serif); font-weight:700; font-size:0.88rem; line-height:1.3; margin-bottom:4px; transition:.2s ease; color:var(--ink-deep);}
-  .sidebar-item:hover .sidebar-item-title{color:var(--accent-ink);}
-  .sidebar-item-date{font-family:var(--mono); font-size:0.68rem; color:var(--muted);}
-  .btn-outline-block{
-    width:100%; margin-top:12px; padding:10px; background:none; border:1px solid rgba(28,22,16,0.25);
-    color:var(--ink-deep); font-family:var(--sans); font-weight:600; font-size:0.85rem; border-radius:6px; cursor:pointer; transition:.2s ease;
-  }
-  .btn-outline-block:hover{border-color:var(--accent-ink); color:var(--accent-ink);}
+  .newsletter-box{background:var(--surface); border-radius:16px; padding:24px;}
   .newsletter-title{font-family:var(--serif); font-weight:800; font-size:1.15rem; color:var(--ink-deep); margin-bottom:8px;}
   .newsletter-text{font-size:0.85rem; color:#6b6355; margin-bottom:16px; line-height:1.5;}
   .newsletter-form{display:flex; flex-direction:column; gap:10px;}
   .newsletter-form input{padding:11px 12px; border:1px solid rgba(28,22,16,0.25); border-radius:6px; font-family:var(--sans); font-size:0.88rem;}
-  .newsletter-form button{padding:11px; background:var(--ink-deep); color:var(--paper); border:none; border-radius:6px; font-weight:600; font-size:0.88rem; cursor:pointer;}
+  .newsletter-form button{padding:11px; background:var(--ink-deep); color:var(--paper); border:none; border-radius:9999px; font-weight:600; font-size:0.88rem; cursor:pointer;}
 
-  @media (max-width:860px){
-    .editorial-grid{grid-template-columns:1fr;}
-  }
   .hero-slider{position:relative; min-height:600px; overflow:hidden; background:var(--ink-deep);}
   .hero-slider-contained{min-height:460px; border-radius:14px;}
   .hero-slider-contained .hero-slide{border-radius:14px;}
@@ -264,7 +277,7 @@
   }
   .hero-slide-content{position:relative; z-index:2; padding:60px 40px 70px; max-width:720px; margin:0 auto; width:100%; box-sizing:border-box; color:#f6f1e4;}
   .hero-slide-tags{display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
-  .hero-slide-tag{background:#fff; color:#1c1610; font-weight:800; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; padding:6px 14px; border-radius:3px;}
+  .hero-slide-tag{background:#fff; color:#1c1610; font-weight:800; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; padding:6px 14px; border-radius:9999px;}
   .hero-slide-label{font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:rgba(246,241,228,0.7);}
   .hero-slide-title{
     font-family:var(--serif); font-weight:800; font-size:clamp(1.5rem,3.6vw,2.5rem); line-height:1.2; margin-bottom:16px; cursor:pointer;
@@ -272,7 +285,7 @@
   }
   .hero-slide-title:hover{text-decoration:underline;}
   .hero-slide-dek{font-size:1rem; color:rgba(246,241,228,0.85); max-width:60ch; margin-bottom:26px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .hero-slide-cta{display:inline-flex; align-items:center; gap:8px; background:#fff; color:#1c1610; font-weight:700; padding:12px 22px; border-radius:4px; text-decoration:none; margin-bottom:24px; cursor:pointer; border:none; font-size:0.92rem; font-family:var(--sans);}
+  .hero-slide-cta{display:inline-flex; align-items:center; gap:8px; background:#fff; color:#1c1610; font-weight:700; padding:12px 22px; border-radius:9999px; text-decoration:none; margin-bottom:24px; cursor:pointer; border:none; font-size:0.92rem; font-family:var(--sans);}
   .hero-slide-meta{display:flex; align-items:center; gap:10px; font-size:0.85rem; color:rgba(246,241,228,0.75); flex-wrap:wrap;}
   .hero-nav{
     position:absolute; top:50%; transform:translateY(-50%); z-index:3;
@@ -305,7 +318,7 @@
   }
   .hero-track-wrap{position:relative; aspect-ratio:4/5; overflow:hidden;}
   .hero-track-wrap .thumb-track img{filter:sepia(0.15) contrast(1.02);}
-  .hero-clip figcaption{font-family:var(--serif); font-style:italic; font-size:0.68rem; margin-top:8px; color:#4a4536; line-height:1.35;}
+  .hero-clip figcaption{font-family:var(--subserif); font-style:italic; font-size:0.68rem; margin-top:8px; color:#4a4536; line-height:1.35;}
   @media (max-width:760px){
     .hero-clip{max-width:120px; width:36%; bottom:-14px; left:-6px; padding:8px;}
     .hero-clip figcaption{font-size:0.58rem; margin-top:6px;}
@@ -314,7 +327,7 @@
   .btn-primary{
     font-family:var(--mono); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.05em;
     background:var(--accent); color:var(--ink-deep); padding:14px 24px; border:1px solid var(--accent);
-    transition:.2s ease; display:inline-block; cursor:pointer;
+    transition:.2s ease; display:inline-block; cursor:pointer; border-radius:9999px;
   }
   .btn-primary:hover{background:transparent; color:var(--accent-ink);}
 
@@ -416,13 +429,13 @@
   .old-article-thumb{width:180px; height:135px; flex-shrink:0; border-radius:8px; overflow:hidden; background:var(--paper-dim); cursor:pointer;}
   .old-article-thumb img{width:100%; height:100%; object-fit:cover;}
   .old-article-main{flex:1; min-width:0;}
-  .old-article-tag{display:inline-block; font-family:var(--sans); font-weight:800; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.03em; background:var(--ink-deep); color:#f6f1e4; padding:4px 10px; border-radius:3px; margin-bottom:10px;}
+  .old-article-tag{display:inline-block; font-family:var(--sans); font-weight:800; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.03em; background:var(--ink-deep); color:#f6f1e4; padding:4px 10px; border-radius:9999px; margin-bottom:10px;}
   .old-article-title{font-family:var(--serif); font-weight:800; font-size:1.2rem; line-height:1.3; margin-bottom:8px; cursor:pointer; transition:.2s ease;}
   .old-article-title:hover{color:var(--accent-ink);}
   .old-article-byline{font-family:var(--mono); font-size:0.82rem; color:var(--muted); margin-bottom:10px;}
   .old-article-byline b{color:var(--text); font-weight:600;}
   .old-article-excerpt{font-size:0.92rem; color:var(--muted); line-height:1.55; margin-bottom:14px;}
-  .old-article-more{font-family:var(--sans); font-weight:700; font-size:0.8rem; border:1px solid rgba(28,22,16,0.3); padding:8px 16px; border-radius:4px; cursor:pointer; background:none; color:var(--text); display:inline-block;}
+  .old-article-more{font-family:var(--sans); font-weight:700; font-size:0.8rem; border:1px solid rgba(28,22,16,0.3); padding:8px 16px; border-radius:9999px; cursor:pointer; background:none; color:var(--text); display:inline-block;}
   .old-article-more:hover{border-color:var(--accent-ink); color:var(--accent-ink);}
   @media (max-width:600px){
     .old-article-item{flex-direction:column;}
@@ -447,16 +460,29 @@
   .breadcrumb span:hover{color:var(--accent-ink);}
   .reader-tag{cursor:pointer;}
   .reader-title{font-family:var(--serif); font-weight:800; font-size:clamp(1.8rem,4vw,2.7rem); line-height:1.12; letter-spacing:-0.01em; margin-bottom:18px;}
-  .reader-dek{font-family:var(--serif); font-style:italic; font-weight:500; font-size:1.15rem; color:var(--muted); line-height:1.5; margin-bottom:24px;}
-  .reader-byline-row{
-    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
-    padding:18px 0; border-top:1px solid rgba(28,22,16,0.14); border-bottom:1px solid rgba(28,22,16,0.14); margin-bottom:32px;
+  .reader-dek{font-family:var(--subserif); font-style:italic; font-weight:500; font-size:1.15rem; color:var(--muted); line-height:1.5; margin-bottom:24px;}
+  .reader-byline{
+    display:flex; align-items:center; gap:12px; padding:18px 0;
+    border-top:1px solid rgba(28,22,16,0.14); border-bottom:1px solid rgba(28,22,16,0.14); margin-bottom:32px;
   }
-  .reader-byline{display:flex; align-items:center; gap:12px;}
   .reader-byline img{width:44px; height:44px; border-radius:50%; object-fit:cover;}
   .reader-byline-name{font-weight:700; font-size:0.92rem; cursor:pointer; transition:.2s ease; display:inline-block;}
   .reader-byline-name:hover{color:var(--accent-ink);}
   .reader-byline-meta{font-family:var(--mono); font-size:0.78rem; color:var(--muted);}
+
+  .reader-body-grid{display:grid; grid-template-columns:64px 1fr; gap:32px; align-items:start;}
+  .reader-share-sidebar{
+    position:sticky; top:100px; display:flex; flex-direction:column; align-items:center; gap:12px;
+  }
+  .reader-share-sidebar .share-icons-label{writing-mode:vertical-rl; text-orientation:mixed; margin:0 0 6px;}
+  @media (max-width:760px){
+    .reader-body-grid{grid-template-columns:1fr;}
+    .reader-share-sidebar{
+      position:static; flex-direction:row; justify-content:flex-start; margin-bottom:24px;
+    }
+    .reader-share-sidebar .share-icons-label{writing-mode:horizontal-tb; margin:0 4px 0 0;}
+  }
+
   .share-icons{display:flex; align-items:center; gap:10px;}
   .share-icons-label{font-family:var(--mono); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-right:2px;}
   .icon-btn{
@@ -469,7 +495,7 @@
   .share-btn:hover{border-color:var(--accent-ink); color:var(--accent-ink);}
   .citation-box{margin-bottom:32px; padding:18px; border:1px dashed rgba(28,22,16,0.3); font-family:var(--mono); font-size:0.8rem; color:var(--text); line-height:1.6;}
   .citation-box p{margin-bottom:12px; word-break:break-word;}
-  .reader-hero{width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:32px;}
+  .reader-hero{width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:32px; border-radius:16px;}
   .reader-quick-actions{display:flex; gap:12px; margin:36px 0;}
   .quick-icon-btn{
     width:40px; height:40px; border-radius:50%; border:1px solid rgba(28,22,16,0.25);
@@ -597,7 +623,7 @@
   .reader-subhead-lg{font-family:var(--serif); font-weight:800; font-size:1.75rem; margin:40px 0 18px; color:var(--text); letter-spacing:-0.01em;}
   .reader-quote{
     margin:32px 0; padding:4px 0 4px 24px; border-left:3px solid var(--accent);
-    font-family:var(--serif); font-style:italic; font-weight:500; font-size:1.2rem;
+    font-family:var(--subserif); font-style:italic; font-weight:400; font-size:1.2rem;
     color:var(--text); line-height:1.6;
   }
   .reader-inline-image{margin:28px 0;}
@@ -693,6 +719,7 @@
 <header>
   <nav class="wrap">
     <a href="#" class="logo" onclick="event.preventDefault(); showHome();">
+      <img class="logo-mark" src="assets/logo.png" alt="Logo Literaism" width="30" height="34">
       <span class="logo-text">Literaism</span>
     </a>
     <div class="nav-center" id="nav-center"></div>
@@ -706,13 +733,20 @@
       <button class="menu-btn" onclick="openMenu()" aria-label="Buka menu">☰</button>
     </div>
   </nav>
-  <div class="header-search-bar" id="header-search-bar">
-    <div class="wrap header-search-inner">
-      <input type="text" id="search-input" placeholder="Cari tulisan..." onkeydown="if(event.key==='Enter'){runSearch();}">
-      <button class="btn-primary" onclick="runSearch()">Cari</button>
-    </div>
-  </div>
 </header>
+
+<div class="search-overlay" id="header-search-bar">
+  <button class="search-overlay-close" onclick="toggleHeaderSearch()" aria-label="Tutup pencarian">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="search-overlay-inner">
+    <div class="search-overlay-row">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Cari esai, tokoh, atau topik..." onkeydown="if(event.key==='Enter'){runSearch();}">
+    </div>
+    <button class="btn-primary" onclick="runSearch()" style="margin-top:20px;">Cari</button>
+  </div>
+</div>
 
 <div class="marquee">
   <div class="marquee-track">
@@ -731,17 +765,23 @@
 
   <!-- ============ HOME ============ -->
   <div class="view active" id="view-home">
-    <section class="hero-static">
-      <div class="wrap hero-static-grid">
-        <div class="hero-static-content">
-          <span class="hero-static-label">Baca. Pahami. Rasakan.</span>
-          <h1 class="hero-static-title">Sastra, Sejarah, dan Budaya Pop dalam Satu Ruang.</h1>
-          <p class="hero-static-dek">Literaism adalah media yang menghubungkan kata-kata, masa lalu, dan budaya pop buat memahami zaman sekarang — tanpa gaya menggurui, tetap jujur sama sumbernya.</p>
-          <button class="btn-primary" onclick="document.getElementById('pilihan-redaksi').scrollIntoView({behavior:'smooth'})">Jelajahi Artikel</button>
+    <section class="hero-v2">
+      <div class="wrap hero-v2-grid">
+        <div class="hero-v2-content">
+          <p class="hero-v2-eyebrow">Sastra &middot; Sejarah &middot; Budaya Pop</p>
+          <h1 class="hero-v2-title">Baca Dunia dari <span class="hero-v2-italic">Sudut Pandang</span> yang Berbeda.</h1>
+          <p class="hero-v2-dek">Literaism adalah media yang menghubungkan kata-kata, masa lalu, dan budaya pop buat memahami zaman sekarang — tanpa gaya menggurui, tetap jujur sama sumbernya.</p>
+          <div class="hero-v2-actions">
+            <button class="btn-pill-primary" onclick="document.getElementById('pilihan-redaksi').scrollIntoView({behavior:'smooth'})">Mulai Membaca</button>
+            <button class="btn-pill-outline" onclick="document.getElementById('pilihan-redaksi').scrollIntoView({behavior:'smooth'})">
+              Lihat Artikel
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="hero-static-visual">
-          <div class="hero-collage">
-            <img class="collage-img collage-main" src="assets/hero-collage.png" alt="Kolase sastra, sejarah, dan budaya pop" loading="lazy">
+        <div class="hero-v2-visual">
+          <div class="hero-v2-image-wrap">
+            <img src="assets/hero-collage.png" alt="Kolase sastra, sejarah, dan budaya pop" loading="lazy">
           </div>
           <figure class="hero-clip">
             <div class="hero-track-wrap">
@@ -760,44 +800,35 @@
 
     <section class="segment-icons-section">
       <div class="wrap">
+        <h2 class="segment-icons-title">Jelajahi Topik</h2>
         <div class="segment-icon-grid" id="segment-icon-grid"></div>
       </div>
     </section>
 
     <section class="editorial-section" id="pilihan-redaksi">
       <div class="wrap">
-        <div class="editorial-grid">
-          <div class="editorial-main">
-            <div class="section-head-row">
-              <h2 class="section-title-sm">Pilihan Redaksi</h2>
-              <a class="see-all-link" onclick="document.getElementById('terbaru').scrollIntoView({behavior:'smooth'})">Lihat semua</a>
-            </div>
-            <div class="hero-slider hero-slider-contained" id="hero-slider"></div>
-
-            <div class="section-head-row" id="terbaru" style="margin-top:48px;">
-              <h2 class="section-title-sm">Terbaru</h2>
-              <a class="see-all-link" onclick="document.getElementById('more-reading').scrollIntoView({behavior:'smooth'})">Lihat semua</a>
-            </div>
-            <div class="terbaru-list" id="terbaru-list"></div>
-          </div>
-
-          <div class="editorial-sidebar">
-            <div class="trending-box">
-              <h2 class="section-title-sm">Rekomendasi</h2>
-              <div class="sidebar-list" id="sidebar-recommend-list"></div>
-              <button class="btn-outline-block" onclick="document.getElementById('more-reading').scrollIntoView({behavior:'smooth'})">Lihat Semua</button>
-            </div>
-
-            <div class="newsletter-box">
-              <h3 class="newsletter-title">Newsletter</h3>
-              <p class="newsletter-text">Dapatkan artikel pilihan dan rekomendasi menarik setiap minggu.</p>
-              <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Makasih udah gabung! (Sambungkan form ini ke layanan email lo.)');">
-                <input type="email" placeholder="Email kamu" required aria-label="Alamat email">
-                <button type="submit">Berlangganan</button>
-              </form>
-            </div>
-          </div>
+        <div class="section-head-row">
+          <h2 class="section-title-sm">Pilihan Redaksi</h2>
+          <a class="see-all-link" onclick="document.getElementById('artikel-terbaru').scrollIntoView({behavior:'smooth'})">Lihat Semua <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
         </div>
+        <div class="hero-slider hero-slider-contained" id="hero-slider"></div>
+      </div>
+    </section>
+
+    <section class="trending-strip">
+      <div class="wrap">
+        <p class="trending-strip-label">Sedang Dibicarakan</p>
+        <div class="trending-strip-row" id="trending-strip-row"></div>
+      </div>
+    </section>
+
+    <section class="more-reading" id="artikel-terbaru">
+      <div class="wrap">
+        <div class="section-head-row">
+          <h2 class="section-title-sm">Artikel Terbaru</h2>
+          <a class="see-all-link" onclick="document.getElementById('more-reading').scrollIntoView({behavior:'smooth'})">Lihat Semua <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+        <div class="latest-articles-grid" id="terbaru-list"></div>
       </div>
     </section>
 
@@ -873,15 +904,16 @@
       <h1 class="reader-title" id="reader-title">Judul artikel</h1>
       <p class="reader-dek" id="reader-dek"></p>
 
-      <div class="reader-byline-row">
-        <div class="reader-byline">
-          <img id="reader-author-photo" src="" alt="">
-          <div>
-            <div class="reader-byline-name" id="reader-author-name" onclick="if(currentArticle) openAuthor(currentArticle.authorName)">Nama Penulis</div>
-            <div class="reader-byline-meta" id="reader-author-meta">tanggal · waktu baca</div>
-          </div>
+      <div class="reader-byline">
+        <img id="reader-author-photo" src="" alt="">
+        <div>
+          <div class="reader-byline-name" id="reader-author-name" onclick="if(currentArticle) openAuthor(currentArticle.authorName)">Nama Penulis</div>
+          <div class="reader-byline-meta" id="reader-author-meta">tanggal · waktu baca</div>
         </div>
-        <div class="share-icons">
+      </div>
+
+      <div class="reader-body-grid">
+        <aside class="reader-share-sidebar">
           <span class="share-icons-label">Bagikan</span>
           <a id="share-wa" class="icon-btn" target="_blank" rel="noopener" title="Bagikan ke WhatsApp">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
@@ -895,79 +927,82 @@
           <button class="icon-btn" onclick="toggleCitation()" title="Sitasi (APA)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/></svg>
           </button>
-        </div>
-      </div>
-      <div class="citation-box" id="citation-box" style="display:none;">
-        <p id="citation-text"></p>
-        <button class="share-btn" onclick="copyCitation()">Salin Sitasi</button>
-      </div>
+        </aside>
 
-      <img class="reader-hero" id="reader-hero" src="" alt="">
-      <div class="reader-text" id="reader-text"></div>
-
-      <div class="reader-quick-actions">
-        <button class="quick-icon-btn" id="quick-like-btn" onclick="toggleLike(); syncQuickActions();" title="Suka">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>
-        </button>
-        <button class="quick-icon-btn" id="quick-bookmark-btn" onclick="toggleBookmark()" title="Simpan">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-        </button>
-        <button class="quick-icon-btn" onclick="quickShare()" title="Bagikan">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
-        </button>
-      </div>
-
-      <div class="author-bio-card">
-        <img id="reader-author-photo-2" src="" alt="">
-        <div class="author-bio-info">
-          <div class="reader-byline-name" id="reader-author-name-2" onclick="if(currentArticle) openAuthor(currentArticle.authorName)">Nama Penulis</div>
-          <p class="author-bio-text" id="reader-author-bio"></p>
-        </div>
-        <div class="share-icons">
-          <span class="share-icons-label">Bagikan</span>
-          <a id="share-wa-2" class="icon-btn" target="_blank" rel="noopener" title="Bagikan ke WhatsApp">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-          </a>
-          <button class="icon-btn" onclick="shareInstagram()" title="Bagikan ke Instagram Story">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/></svg>
-          </button>
-          <a id="share-fb-2" class="icon-btn" target="_blank" rel="noopener" title="Bagikan ke Facebook">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.5c0-.9.25-1.5 1.55-1.5H16.5V4.3c-.27-.04-1.2-.11-2.28-.11-2.26 0-3.8 1.38-3.8 3.9V10.5h-2.5v3h2.5V21h3z"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="engagement">
-        <div class="engagement-actions">
-          <button class="like-btn" id="like-btn" onclick="toggleLike()">♡ <span id="like-count">0</span> Suka</button>
-        </div>
-        <div class="comments">
-          <h4 class="comments-title">Komentar (<span id="comment-count">0</span>)</h4>
-          <form class="comment-form" onsubmit="event.preventDefault(); addComment();">
-            <input type="text" id="comment-name" placeholder="Nama kamu" required>
-            <textarea id="comment-text" placeholder="Tulis pendapat kamu soal tulisan ini..." required></textarea>
-            <button type="submit" class="btn-primary">Kirim Komentar</button>
-          </form>
-          <div class="comment-list" id="comment-list"></div>
-        </div>
-      </div>
-
-      <div class="reader-footer">
-        <h3 class="reader-footer-title">Baca Tulisan Kami Lainnya</h3>
-        <div class="article-grid" id="other-articles-grid"></div>
-
-        <div class="contact-strip">
-          <h4>Terhubung Sama Literaism</h4>
-          <div class="contact-links">
-            <a href="https://www.instagram.com/literaism?igsh=M3Q2ZDQxYWFxamN5" target="_blank" rel="noopener">Instagram →</a>
-            <a href="https://youtube.com/@literaism?si=yDiqRKKFY5mkOtfW" target="_blank" rel="noopener">YouTube →</a>
-            <a href="https://tiktok.com/@literaism" target="_blank" rel="noopener">TikTok →</a>
+        <div class="reader-main-col">
+          <div class="citation-box" id="citation-box" style="display:none;">
+            <p id="citation-text"></p>
+            <button class="share-btn" onclick="copyCitation()">Salin Sitasi</button>
           </div>
-        </div>
 
-        <div class="segment-links">
-          <h4>Jelajahi Segmen Lain</h4>
-          <div class="pillar-grid pillar-grid-small" id="article-segment-links"></div>
+          <img class="reader-hero" id="reader-hero" src="" alt="">
+          <div class="reader-text" id="reader-text"></div>
+
+          <div class="reader-quick-actions">
+            <button class="quick-icon-btn" id="quick-like-btn" onclick="toggleLike(); syncQuickActions();" title="Suka">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>
+            </button>
+            <button class="quick-icon-btn" id="quick-bookmark-btn" onclick="toggleBookmark()" title="Simpan">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </button>
+            <button class="quick-icon-btn" onclick="quickShare()" title="Bagikan">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+            </button>
+          </div>
+
+          <div class="author-bio-card">
+            <img id="reader-author-photo-2" src="" alt="">
+            <div class="author-bio-info">
+              <div class="reader-byline-name" id="reader-author-name-2" onclick="if(currentArticle) openAuthor(currentArticle.authorName)">Nama Penulis</div>
+              <p class="author-bio-text" id="reader-author-bio"></p>
+            </div>
+            <div class="share-icons">
+              <span class="share-icons-label">Bagikan</span>
+              <a id="share-wa-2" class="icon-btn" target="_blank" rel="noopener" title="Bagikan ke WhatsApp">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+              </a>
+              <button class="icon-btn" onclick="shareInstagram()" title="Bagikan ke Instagram Story">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <a id="share-fb-2" class="icon-btn" target="_blank" rel="noopener" title="Bagikan ke Facebook">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.5c0-.9.25-1.5 1.55-1.5H16.5V4.3c-.27-.04-1.2-.11-2.28-.11-2.26 0-3.8 1.38-3.8 3.9V10.5h-2.5v3h2.5V21h3z"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="engagement">
+            <div class="engagement-actions">
+              <button class="like-btn" id="like-btn" onclick="toggleLike()">♡ <span id="like-count">0</span> Suka</button>
+            </div>
+            <div class="comments">
+              <h4 class="comments-title">Komentar (<span id="comment-count">0</span>)</h4>
+              <form class="comment-form" onsubmit="event.preventDefault(); addComment();">
+                <input type="text" id="comment-name" placeholder="Nama kamu" required>
+                <textarea id="comment-text" placeholder="Tulis pendapat kamu soal tulisan ini..." required></textarea>
+                <button type="submit" class="btn-primary">Kirim Komentar</button>
+              </form>
+              <div class="comment-list" id="comment-list"></div>
+            </div>
+          </div>
+
+          <div class="reader-footer">
+            <h3 class="reader-footer-title">Baca Tulisan Kami Lainnya</h3>
+            <div class="article-grid" id="other-articles-grid"></div>
+
+            <div class="contact-strip">
+              <h4>Terhubung Sama Literaism</h4>
+              <div class="contact-links">
+                <a href="https://www.instagram.com/literaism?igsh=M3Q2ZDQxYWFxamN5" target="_blank" rel="noopener">Instagram →</a>
+                <a href="https://youtube.com/@literaism?si=yDiqRKKFY5mkOtfW" target="_blank" rel="noopener">YouTube →</a>
+                <a href="https://tiktok.com/@literaism" target="_blank" rel="noopener">TikTok →</a>
+              </div>
+            </div>
+
+            <div class="segment-links">
+              <h4>Jelajahi Segmen Lain</h4>
+              <div class="pillar-grid pillar-grid-small" id="article-segment-links"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1399,8 +1434,8 @@
   };
 
   function segmentIconHTML(seg){
-    const icon = SEGMENT_ICONS[seg.key] || "✦";
-    return `<button class="segment-icon-item" onclick="openSegment('${seg.key}')">
+    const icon = SEGMENT_ICONS[seg.key] || "✨";
+    return `<button class="segment-icon-item reveal" onclick="openSegment('${seg.key}')">
       <span class="segment-icon-glyph">${icon}</span>
       <span class="segment-icon-name">${seg.name}</span>
       <span class="segment-icon-desc">${seg.desc}</span>
@@ -1833,6 +1868,10 @@
     document.body.style.overflow = "";
   }
 
+  function refreshIcons(){
+    if(typeof lucide !== "undefined" && lucide.createIcons) lucide.createIcons();
+  }
+
   function toggleDarkMode(){
     const isDark = document.body.classList.toggle("dark-mode");
     localStorage.setItem("literaism-theme", isDark ? "dark" : "light");
@@ -1854,6 +1893,27 @@
     runSearch();
   }
 
+  /* ======================= SCROLL REVEAL ======================= */
+  function initScrollReveal(container){
+    const scope = container ? document.getElementById(container) : document;
+    if(!scope) return;
+    const items = scope.querySelectorAll(".reveal:not(.reveal-bound)");
+    if(!items.length) return;
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add("in-view");
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.15, rootMargin:"0px 0px -40px 0px"});
+    items.forEach((el,i)=>{
+      el.classList.add("reveal-bound");
+      el.style.transitionDelay = Math.min(i*0.08, 0.4) + "s";
+      io.observe(el);
+    });
+  }
+
   /* ======================= INITIAL RENDER ======================= */
   async function init(){
     const themeToggle = document.getElementById("theme-toggle");
@@ -1861,6 +1921,8 @@
 
     document.getElementById("segment-icon-grid").innerHTML =
       SEGMENTS.map(s=>segmentIconHTML(s)).join("");
+    refreshIcons();
+    initScrollReveal("segment-icon-grid");
 
     document.getElementById("nav-center").innerHTML =
       SEGMENTS.map(s=>`<a onclick="openSegment('${s.key}')">${s.name}</a>`).join("");
@@ -1955,9 +2017,9 @@
 
   function renderHomeArticles(){
     renderPilihanRedaksi();
+    renderTrendingStrip();
     renderTerbaruList();
     renderMoreReading();
-    renderSidebarRecommend();
   }
 
   function renderPilihanRedaksi(){
@@ -1969,16 +2031,36 @@
     });
   }
 
+  function trendingStripItemHTML(id, a, num){
+    return `<a onclick="openArticle('${id}')" class="trending-strip-item">
+      <span class="trending-strip-num">${String(num).padStart(2,"0")}</span>
+      <p class="trending-strip-title">${a.title}</p>
+    </a>`;
+  }
+
+  function renderTrendingStrip(){
+    const row = document.getElementById("trending-strip-row");
+    if(!row) return;
+    const picks = shuffleArray(Object.entries(ARTICLES)).slice(0, 5);
+    row.innerHTML = picks.length
+      ? picks.map(([id,a],i)=>trendingStripItemHTML(id,a,i+1)).join("")
+      : `<p class="empty-note" style="color:rgba(246,241,228,0.6);">Belum ada tulisan yang dibicarakan.</p>`;
+  }
+
   function terbaruItemHTML(id, a){
-    return `<article class="terbaru-item" onclick="openArticle('${id}')">
-      <div class="terbaru-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
-      <div class="terbaru-main">
-        <span class="terbaru-tag">${segName(a.segment)}</span>
-        <h3 class="terbaru-title">${a.title}</h3>
-        <p class="terbaru-excerpt">${a.excerpt}</p>
-        <span class="terbaru-meta">${formatDate(a.date)} · ${a.authorName}</span>
+    return `<a class="latest-article-card" onclick="openArticle('${id}')">
+      <div class="latest-article-thumb"><img src="${a.images[0]}" alt="${a.title}" loading="lazy"></div>
+      <span class="latest-article-tag">${segName(a.segment)}</span>
+      <h3 class="latest-article-title">${a.title}</h3>
+      <p class="latest-article-excerpt">${a.excerpt}</p>
+      <div class="latest-article-meta">
+        <span>${formatDate(a.date)}</span><span>·</span>
+        <span class="latest-article-meta-time">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>
+          ${a.readTime} menit baca
+        </span>
       </div>
-    </article>`;
+    </a>`;
   }
 
   function renderTerbaruList(){
@@ -1986,30 +2068,10 @@
     if(!list) return;
     const latest = Object.entries(ARTICLES)
       .sort((a,b)=> new Date(b[1].date) - new Date(a[1].date))
-      .slice(0, 4);
+      .slice(0, 6);
     list.innerHTML = latest.length
       ? latest.map(([id,a])=>terbaruItemHTML(id,a)).join("")
       : `<p class="empty-note">Belum ada tulisan yang diterbitkan.</p>`;
-  }
-
-  function sidebarItemHTML(id, a){
-    return `<article class="sidebar-item" onclick="openArticle('${id}')">
-      <div class="sidebar-item-thumb"><img src="${a.images[0]}" alt="" loading="lazy"></div>
-      <div class="sidebar-item-content">
-        <span class="sidebar-item-tag">${segName(a.segment)}</span>
-        <h3 class="sidebar-item-title">${a.title}</h3>
-        <span class="sidebar-item-date">${formatDate(a.date)}</span>
-      </div>
-    </article>`;
-  }
-
-  function renderSidebarRecommend(){
-    const list = document.getElementById("sidebar-recommend-list");
-    if(!list) return;
-    const picks = shuffleArray(Object.entries(ARTICLES)).slice(0, 3);
-    list.innerHTML = picks.length
-      ? picks.map(([id,a])=>sidebarItemHTML(id,a)).join("")
-      : `<p class="empty-note">Belum ada rekomendasi. Cek lagi nanti!</p>`;
   }
 
   function readingItemHTML(id, a){
