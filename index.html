@@ -219,7 +219,7 @@
   }
 
   /* EDITORIAL: Pilihan Redaksi (slider) + Trending strip + Artikel Terbaru grid */
-  .editorial-section{padding:20px 0 0;}
+  .editorial-section{padding:20px 0 56px;}
   .section-head-row{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px;}
   .section-title-sm{font-family:var(--serif); font-weight:600; font-size:1.9rem; color:var(--text);}
   .see-all-link{
@@ -262,7 +262,7 @@
   .newsletter-form button{padding:11px; background:var(--ink-deep); color:var(--paper); border:none; border-radius:9999px; font-weight:600; font-size:0.88rem; cursor:pointer;}
 
   .hero-slider{position:relative; min-height:600px; overflow:hidden; background:var(--ink-deep);}
-  .hero-slider-contained{min-height:460px; border-radius:14px;}
+  .hero-slider-contained{min-height:460px; border-radius:14px; box-shadow:0 24px 48px -20px rgba(28,22,16,0.28);}
   .hero-slider-contained .hero-slide{border-radius:14px;}
   @media (max-width:860px){ .hero-slider-contained{min-height:400px;} }
   .hero-slide{
@@ -412,7 +412,8 @@
   .empty-note{font-family:var(--mono); font-size:0.85rem; color:var(--muted); padding:30px 0;}
 
   /* SEGMENT PAGE: header + hero slider (3 terbaru) + list lama berpaginasi */
-  .segment-header{padding:24px 0 8px;}
+  .segment-breadcrumb{margin-bottom:10px;}
+  .segment-page-title{font-family:var(--serif); font-weight:700; font-size:1.3rem; letter-spacing:0.02em; text-transform:uppercase; margin:0 0 28px;}
   #view-segment .eyebrow, #view-segment .view-title, #view-segment .view-desc{
     text-align:center; margin-left:auto; margin-right:auto;
   }
@@ -878,17 +879,12 @@
 
   <!-- ============ SEGMENT (curated, horizontal carousel newest→oldest) ============ -->
   <div class="view" id="view-segment">
-    <div class="wrap segment-header">
-      <button class="back-link" onclick="showHome()">← Kembali ke Beranda</button>
-      <span class="eyebrow" style="display:none;">Rubrik</span>
-      <h1 class="view-title" id="segment-title" style="display:none;">Nama Segmen</h1>
-      <p class="view-desc" id="segment-desc" style="display:none;">Deskripsi segmen.</p>
-    </div>
-
     <div class="hero-slider segment-hero-slider" id="segment-hero-slider"></div>
 
     <div class="wrap segment-old-section">
-      <span class="old-articles-label">Tulisan Lama, Siapa Tau Kelewat</span>
+      <div class="breadcrumb segment-breadcrumb"><span onclick="showHome()">Beranda</span> / <span id="segment-breadcrumb-name">Segmen</span></div>
+      <h1 class="segment-page-title" id="segment-title">Nama Segmen</h1>
+      <p class="view-desc" id="segment-desc" style="display:none;">Deskripsi segmen.</p>
       <div class="old-article-list" id="segment-old-list"></div>
       <div class="pagination" id="segment-pagination"></div>
     </div>
@@ -1480,21 +1476,21 @@
     const seg = SEGMENTS.find(s=>s.key===key);
     if(!seg) return;
     document.getElementById("segment-title").textContent = seg.name;
+    document.getElementById("segment-breadcrumb-name").textContent = seg.name;
     document.getElementById("segment-desc").textContent = seg.desc;
 
     const all = Object.entries(ARTICLES).filter(([id,a])=>a.segment===key)
       .sort((a,b)=> new Date(b[1].date) - new Date(a[1].date));
 
-    const top3 = all.slice(0, 3);
-    const rest = all.slice(3);
+    const randomPicks = [...all].sort(()=>Math.random()-0.5).slice(0, 3);
 
-    buildHeroSlider("segment-hero-slider", top3, {
+    buildHeroSlider("segment-hero-slider", randomPicks, {
       ctaLabel: "Baca Selengkapnya →",
       labelText: seg.name,
       emptyText: "Belum ada tulisan di segmen ini. Cek lagi minggu depan!"
     });
 
-    segmentPageState = { key: key, page: 1, oldArticles: rest };
+    segmentPageState = { key: key, page: 1, oldArticles: all };
     renderSegmentOldList();
 
     activateView("view-segment");
