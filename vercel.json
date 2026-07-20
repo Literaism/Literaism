@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/artikel/:id", "destination": "/api/article-page?id=:id" },
+    { "source": "/kategori/:key", "destination": "/api/category-page?key=:key" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/feed.xml", "destination": "/api/feed" }
+  ]
+}
