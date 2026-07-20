@@ -2095,6 +2095,12 @@
   }
 
   function routeFromHash(){
+    const pathMatch = location.pathname.match(/^\/kategori\/([a-z-]+)\/?$/);
+    if(pathMatch){
+      const key = pathMatch[1];
+      if(SEGMENTS.find(s=>s.key===key)){ openSegment(key); return; }
+    }
+
     const h = location.hash.replace("#","");
     if(h.startsWith("artikel-")){
       const id = h.replace("artikel-","");
