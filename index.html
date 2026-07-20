@@ -111,6 +111,27 @@
     flex:1; background:none; border:none; color:var(--text); font-family:var(--subserif); font-style:italic;
     font-size:1.15rem; outline:none;
   }
+
+  .quote-modal{
+    position:fixed; inset:0; z-index:400; background:rgba(18,17,13,0.75); display:none;
+    align-items:center; justify-content:center; padding:24px; overflow-y:auto;
+  }
+  .quote-modal.open{display:flex;}
+  .quote-modal-inner{
+    background:var(--paper); border-radius:16px; padding:32px; max-width:900px; width:100%;
+    position:relative; max-height:90vh; overflow-y:auto;
+  }
+  .quote-modal-title{font-family:var(--serif); font-weight:800; font-size:1.4rem; margin:0 0 6px;}
+  .quote-modal-sub{font-size:0.9rem; color:var(--muted); margin:0 0 24px;}
+  .quote-modal-body{display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;}
+  .quote-modal-form{display:flex; flex-direction:column; gap:6px;}
+  .quote-modal-form label{font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-top:12px;}
+  .quote-modal-form label:first-child{margin-top:0;}
+  .quote-modal-form textarea{min-height:140px; padding:10px 12px; border:1px solid rgba(28,22,16,0.25); border-radius:6px; font-family:var(--sans); font-size:0.92rem; resize:vertical;}
+  .quote-modal-form input{padding:10px 12px; border:1px solid rgba(28,22,16,0.25); border-radius:6px; font-family:var(--sans); font-size:0.92rem;}
+  #quote-card-canvas{width:100%; aspect-ratio:1/1; border-radius:12px; background:#12211a;}
+  @media (max-width:700px){ .quote-modal-body{grid-template-columns:1fr;} }
+
   .menu-btn{
     display:flex; align-items:center; gap:8px; background:none; border:1px solid rgba(28,22,16,0.3);
     color:var(--text); font-family:var(--sans); font-weight:600; font-size:1rem;
@@ -463,6 +484,10 @@
   .reader-tag{cursor:pointer;}
   .reader-title{font-family:var(--serif); font-weight:800; font-size:clamp(1.8rem,4vw,2.7rem); line-height:1.12; letter-spacing:-0.01em; margin-bottom:18px;}
   .reader-dek{font-family:var(--subserif); font-style:italic; font-weight:500; font-size:1.15rem; color:var(--muted); line-height:1.5; margin-bottom:24px;}
+  .reader-rating{align-items:center; gap:10px; font-size:1.3rem; letter-spacing:2px; color:#c8a56a; margin-bottom:20px;}
+  .reader-rating .rating-num{font-family:var(--mono); font-size:0.78rem; letter-spacing:0; color:var(--muted); margin-left:4px;}
+  .reader-spotify{margin-bottom:28px; border-radius:12px; overflow:hidden;}
+  .reader-spotify iframe{display:block; border-radius:12px;}
   .reader-byline{
     display:flex; align-items:center; gap:12px; padding:18px 0;
     border-top:1px solid rgba(28,22,16,0.14); border-bottom:1px solid rgba(28,22,16,0.14); margin-bottom:32px;
@@ -631,6 +656,18 @@
   .reader-inline-image{margin:28px 0;}
   .reader-inline-image img{width:100%;}
   .reader-inline-image figcaption{font-family:var(--mono); font-size:0.75rem; color:var(--muted); margin-top:8px;}
+
+  .reader-timeline{margin:36px 0; padding-left:4px;}
+  .timeline-event{position:relative; padding:0 0 32px 28px; border-left:2px solid rgba(122,79,20,0.25);}
+  .timeline-event:last-child{border-left-color:transparent; padding-bottom:2px;}
+  .timeline-dot{
+    position:absolute; left:-7px; top:2px; width:12px; height:12px; border-radius:50%;
+    background:var(--accent-ink); border:2px solid var(--paper);
+  }
+  .timeline-date{font-family:var(--mono); font-size:0.76rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-ink);}
+  .timeline-title{font-family:var(--serif); font-weight:700; font-size:1.05rem; margin:6px 0 6px;}
+  .timeline-desc{font-size:0.92rem; color:var(--muted); line-height:1.6; margin:0;}
+
   @media (max-width:600px){ .editor-row{grid-template-columns:1fr;} }
 
   /* SUBSCRIBE */
@@ -751,6 +788,26 @@
       <input type="text" id="search-input" placeholder="Cari esai, tokoh, atau topik..." onkeydown="if(event.key==='Enter'){runSearch();}">
     </div>
     <button class="btn-primary" onclick="runSearch()" style="margin-top:20px;">Cari</button>
+  </div>
+</div>
+
+<div class="quote-modal" id="quote-card-modal">
+  <div class="quote-modal-inner">
+    <button class="search-overlay-close" onclick="closeQuoteCardModal()" aria-label="Tutup quote card">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 class="quote-modal-title">Buat Quote Card</h3>
+    <p class="quote-modal-sub">Edit kutipannya kalau perlu, terus download buat di-share ke IG/Twitter.</p>
+    <div class="quote-modal-body">
+      <div class="quote-modal-form">
+        <label for="quote-card-text">Teks Kutipan</label>
+        <textarea id="quote-card-text" oninput="renderQuoteCard()" maxlength="240"></textarea>
+        <label for="quote-card-attr">Atribusi (opsional)</label>
+        <input type="text" id="quote-card-attr" oninput="renderQuoteCard()" placeholder="Nama tokoh/buku yang dikutip">
+        <button class="btn-primary" onclick="downloadQuoteCard()" style="margin-top:14px;">Download PNG</button>
+      </div>
+      <canvas id="quote-card-canvas" width="1080" height="1080"></canvas>
+    </div>
   </div>
 </div>
 
@@ -904,6 +961,8 @@
       <span class="eyebrow reader-tag" id="reader-tag" onclick="if(currentArticle) openSegment(currentArticle.segment)">Segmen</span>
       <h1 class="reader-title" id="reader-title">Judul artikel</h1>
       <p class="reader-dek" id="reader-dek"></p>
+      <div class="reader-rating" id="reader-rating" style="display:none;"></div>
+      <div class="reader-spotify" id="reader-spotify" style="display:none;"></div>
 
       <div class="reader-byline">
         <img id="reader-author-photo" src="" alt="">
@@ -948,6 +1007,9 @@
             </button>
             <button class="quick-icon-btn" onclick="quickShare()" title="Bagikan">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+            </button>
+            <button class="quick-icon-btn" onclick="openQuoteCardModal()" title="Buat Quote Card">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10M7 12h6M21 16.5a2.5 2.5 0 01-2.5 2.5H7l-4 3V6a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             </button>
           </div>
 
@@ -1143,6 +1205,25 @@
               <label for="editor-excerpt">Ringkasan Singkat</label>
               <input type="text" id="editor-excerpt" required placeholder="1 kalimat ringkasan buat card">
             </div>
+            <div class="editor-row">
+              <div class="editor-field">
+                <label for="editor-rating">Rating (opsional, 1-5)</label>
+                <select id="editor-rating">
+                  <option value="">Nggak pakai rating</option>
+                  <option value="1">★☆☆☆☆ (1)</option>
+                  <option value="2">★★☆☆☆ (2)</option>
+                  <option value="3">★★★☆☆ (3)</option>
+                  <option value="4">★★★★☆ (4)</option>
+                  <option value="5">★★★★★ (5)</option>
+                </select>
+                <p class="editor-hint">Buat review buku/film/album — muncul sebagai bintang di halaman baca.</p>
+              </div>
+              <div class="editor-field">
+                <label for="editor-spotify">Link Spotify (opsional)</label>
+                <input type="url" id="editor-spotify" placeholder="https://open.spotify.com/track/...">
+                <p class="editor-hint">Buat artikel Musik — link album/track/playlist Spotify, nanti muncul player embed.</p>
+              </div>
+            </div>
             <div class="editor-field">
               <label for="editor-body">Isi Tulisan</label>
               <div class="editor-toolbar">
@@ -1153,9 +1234,11 @@
                 <button type="button" onclick="insertHeading(3)" title="Judul Sedang"><strong style="font-size:0.8em;">T</strong></button>
                 <button type="button" onclick="insertQuote()" title="Kutipan">&ldquo; &rdquo;</button>
                 <button type="button" onclick="triggerImageUpload()" title="Sisipkan Gambar">🖼</button>
+                <button type="button" onclick="insertTimeline()" title="Sisipkan Timeline">📅</button>
               </div>
               <input type="file" id="editor-body-image-upload" accept="image/*" style="display:none;" onchange="handleInlineImageUpload(this)">
-              <p class="editor-hint">Blok teks lalu klik B/I/Link. Taruh kursor di baris kosong buat nyisipin Judul/Kutipan/Gambar (upload dari komputer, nanti muncul cuma nama filenya di teks — link aslinya disimpan otomatis di belakang layar).</p>
+              <p class="editor-hint">Blok teks lalu klik B/I/Link. Taruh kursor di baris kosong buat nyisipin Judul/Kutipan/Gambar/Timeline (upload dari komputer, nanti muncul cuma nama filenya di teks — link aslinya disimpan otomatis di belakang layar).</p>
+              <p class="editor-hint">Format tiap baris timeline: <code>tanggal | judul peristiwa | deskripsi singkat</code> — satu peristiwa per baris, di antara <code>[TIMELINE]</code> dan <code>[/TIMELINE]</code>.</p>
               <textarea id="editor-body" required placeholder="Tulis di sini. Pisahkan tiap paragraf dengan baris kosong." oninput="updateEditorPreview()"></textarea>
             </div>
             <button type="submit" class="btn-primary">Publish Sekarang</button>
@@ -1316,7 +1399,7 @@
 
     fetch("/api/articles", {
       method: "POST",
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "subscribe", email: email })
     })
       .then(res => res.json())
@@ -1411,7 +1494,9 @@
           excerpt: row.excerpt || "",
           authorName: authorName,
           images: [row.cover || ""],
-          paragraphs: String(row.paragraphs || "").split("|||").map(p=>p.trim()).filter(Boolean)
+          paragraphs: String(row.paragraphs || "").split("|||").map(p=>p.trim()).filter(Boolean),
+          rating: row.rating ? Number(row.rating) : null,
+          spotifyUrl: row.spotifyurl || ""
         };
         merged++;
       });
@@ -1618,6 +1703,13 @@
     if(list) list.scrollIntoView({behavior:"smooth", block:"start"});
   }
 
+  function toSpotifyEmbedUrl(url){
+    if(!url) return "";
+    const m = String(url).match(/open\.spotify\.com\/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/);
+    if(!m) return "";
+    return `https://open.spotify.com/embed/${m[1]}/${m[2]}`;
+  }
+
   function openArticle(id){
     const a = ARTICLES[id];
     if(!a) return;
@@ -1629,6 +1721,25 @@
     document.getElementById("reader-breadcrumb-seg").textContent = segName(a.segment);
     document.getElementById("reader-title").textContent = a.title;
     document.getElementById("reader-dek").textContent = a.excerpt || "";
+
+    const ratingBox = document.getElementById("reader-rating");
+    if(a.rating){
+      const full = Math.round(a.rating);
+      ratingBox.innerHTML = "★".repeat(full) + "☆".repeat(5 - full) + `<span class="rating-num">${a.rating}/5</span>`;
+      ratingBox.style.display = "flex";
+    } else {
+      ratingBox.style.display = "none";
+    }
+
+    const spotifyBox = document.getElementById("reader-spotify");
+    const spotifyEmbedSrc = toSpotifyEmbedUrl(a.spotifyUrl);
+    if(spotifyEmbedSrc){
+      spotifyBox.innerHTML = `<iframe src="${spotifyEmbedSrc}" width="100%" height="152" frameborder="0" allow="encrypted-media" loading="lazy"></iframe>`;
+      spotifyBox.style.display = "block";
+    } else {
+      spotifyBox.innerHTML = "";
+      spotifyBox.style.display = "none";
+    }
     document.getElementById("reader-author-photo").src = author.photo;
     document.getElementById("reader-author-photo").alt = "Foto " + a.authorName;
     document.getElementById("reader-author-name").textContent = a.authorName;
@@ -1652,6 +1763,9 @@
     document.getElementById("citation-text").textContent = buildCitation(a, id);
     document.getElementById("citation-box").style.display = "none";
 
+    document.getElementById("quote-card-text").value = "";
+    document.getElementById("quote-card-attr").value = "";
+
     const others = shuffleArray(Object.entries(ARTICLES).filter(([oid])=>oid!==id)).slice(0,3);
     const othersGrid = document.getElementById("other-articles-grid");
     othersGrid.innerHTML = others.length
@@ -1669,7 +1783,7 @@
     VIEWS[id] = (VIEWS[id] || 0) + 1;
     fetch("/api/articles", {
       method: "POST",
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "view", id: id })
     }).catch(()=>{});
   }
@@ -1897,7 +2011,7 @@
     if(btn){ btn.disabled = true; btn.textContent = "Mengirim..."; }
     fetch("/api/articles", {
       method: "POST",
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "comment", articleId: articleId, name: name, text: text })
     })
       .then(res => res.json())
@@ -1948,6 +2062,94 @@
     } else {
       navigator.clipboard.writeText(url).then(()=>alert("Link disalin ke clipboard!"));
     }
+  }
+
+  /* ======================= QUOTE CARD GENERATOR ======================= */
+  function openQuoteCardModal(){
+    const textEl = document.getElementById("quote-card-text");
+    const attrEl = document.getElementById("quote-card-attr");
+    if(currentArticle){
+      if(!textEl.value) textEl.value = currentArticle.excerpt || "";
+      if(!attrEl.value) attrEl.value = currentArticle.title || "";
+    }
+    document.getElementById("quote-card-modal").classList.add("open");
+    renderQuoteCard();
+  }
+
+  function closeQuoteCardModal(){
+    document.getElementById("quote-card-modal").classList.remove("open");
+  }
+
+  function wrapCanvasText(ctx, text, maxWidth){
+    const words = text.split(/\s+/).filter(Boolean);
+    const lines = [];
+    let line = "";
+    words.forEach(word=>{
+      const test = line ? line + " " + word : word;
+      if(ctx.measureText(test).width > maxWidth && line){
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if(line) lines.push(line);
+    return lines;
+  }
+
+  function renderQuoteCard(){
+    const canvas = document.getElementById("quote-card-canvas");
+    if(!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, "#1f3d2e");
+    grad.addColorStop(1, "#12211a");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = "rgba(200,165,106,0.28)";
+    ctx.textBaseline = "top";
+    ctx.font = "italic 700 240px Georgia, 'Times New Roman', serif";
+    ctx.fillText("\u201C", 60, 20);
+
+    const text = (document.getElementById("quote-card-text").value || "Tulis kutipan di sini.").trim();
+    const attribution = document.getElementById("quote-card-attr").value.trim();
+
+    ctx.fillStyle = "#f6f1e4";
+    ctx.textBaseline = "alphabetic";
+    let fontSize = 64;
+    if(text.length > 160) fontSize = 44;
+    else if(text.length > 90) fontSize = 52;
+    ctx.font = `italic 500 ${fontSize}px Georgia, 'Times New Roman', serif`;
+    const maxWidth = W - 160;
+    const lines = wrapCanvasText(ctx, text, maxWidth).slice(0, 9);
+    const lineHeight = fontSize * 1.35;
+    const totalHeight = lines.length * lineHeight;
+    let y = (H - totalHeight) / 2 - 30;
+    lines.forEach(line=>{
+      ctx.fillText(line, 80, y);
+      y += lineHeight;
+    });
+
+    if(attribution){
+      ctx.font = "600 30px 'Courier New', monospace";
+      ctx.fillStyle = "#c8a56a";
+      ctx.fillText("\u2014 " + attribution.toUpperCase(), 80, y + 24);
+    }
+
+    ctx.font = "italic 700 36px Georgia, 'Times New Roman', serif";
+    ctx.fillStyle = "#f6f1e4";
+    ctx.fillText("Literaism", 80, H - 70);
+  }
+
+  function downloadQuoteCard(){
+    const canvas = document.getElementById("quote-card-canvas");
+    const link = document.createElement("a");
+    link.download = "literaism-quote-card.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   }
 
   function syncQuickActions(){
@@ -2264,6 +2466,22 @@
     ta.selectionEnd = from + selected.length;
   }
 
+  function insertTimeline(){
+    const ta = getBodyTextarea();
+    const start = ta.selectionStart;
+    const before = ta.value.slice(0, start);
+    const needsGap = before.length && !before.endsWith("\n\n") ? (before.endsWith("\n") ? "\n" : "\n\n") : "";
+    const template = "[TIMELINE]\n1929-10-24 | Judul peristiwa pertama | Deskripsi singkat peristiwa ini.\n1933-01-30 | Judul peristiwa kedua | Deskripsi singkat peristiwa ini.\n[/TIMELINE]";
+    const text = needsGap + template + "\n\n";
+    ta.value = before + text + ta.value.slice(start);
+    const from = before.length + needsGap.length + "[TIMELINE]\n".length;
+    const lineLen = "1929-10-24 | Judul peristiwa pertama | Deskripsi singkat peristiwa ini.".length;
+    ta.focus();
+    ta.selectionStart = from;
+    ta.selectionEnd = from + lineLen;
+    updateEditorPreview();
+  }
+
   function insertLink(){
     const ta = getBodyTextarea();
     const start = ta.selectionStart, end = ta.selectionEnd;
@@ -2328,9 +2546,30 @@
       .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   }
 
+  function renderTimelineBlock(inner){
+    const events = inner.split("\n").map(l=>l.trim()).filter(Boolean).map(line=>{
+      const parts = line.split("|").map(s=>s.trim());
+      return { date: parts[0] || "", title: parts[1] || "", desc: parts[2] || "" };
+    });
+    if(!events.length) return "";
+    return `<div class="reader-timeline">${events.map(ev => `
+      <div class="timeline-event">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <span class="timeline-date">${inlineMarkdown(ev.date)}</span>
+          <h4 class="timeline-title">${inlineMarkdown(ev.title)}</h4>
+          <p class="timeline-desc">${inlineMarkdown(ev.desc)}</p>
+        </div>
+      </div>`).join("")}</div>`;
+  }
+
   function renderBody(paragraphs){
     return paragraphs.map(raw=>{
       const p = raw.trim();
+      if(p.startsWith("[TIMELINE]") && p.endsWith("[/TIMELINE]")){
+        const inner = p.slice("[TIMELINE]".length, -"[/TIMELINE]".length);
+        return renderTimelineBlock(inner);
+      }
       if(p.startsWith("### ")){
         return `<h3 class="reader-subhead">${inlineMarkdown(p.slice(4))}</h3>`;
       }
@@ -2567,6 +2806,8 @@
     let bodyRaw = document.getElementById("editor-body").value.trim();
     const authorPhoto = authorPhotoField.value;
     const authorBio = document.getElementById("editor-author-bio").value.trim();
+    const ratingVal = document.getElementById("editor-rating").value;
+    const spotifyUrl = document.getElementById("editor-spotify").value.trim();
 
     if(!title || !authorNameRaw || !segment || !cover || !excerpt || !bodyRaw){
       alert("Lengkapi dulu semua kolom wajib (termasuk upload foto cover) ya.");
@@ -2603,7 +2844,9 @@
       segment: segment, date: today, readTime: readTime,
       title: title, excerpt: excerpt, authorName: canonicalName,
       images: [cover],
-      paragraphs: paragraphs
+      paragraphs: paragraphs,
+      rating: ratingVal ? Number(ratingVal) : null,
+      spotifyUrl: spotifyUrl
     };
 
     renderHomeArticles();
@@ -2623,7 +2866,9 @@
         authorPhoto: AUTHORS[canonicalName].photo,
         authorBio: AUTHORS[canonicalName].bio,
         cover: cover,
-        paragraphs: paragraphs.join("|||")
+        paragraphs: paragraphs.join("|||"),
+        rating: ratingVal,
+        spotifyUrl: spotifyUrl
       })
     })
     .then(r => r.json())
